@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/agenda", "destination": "/agenda.html" },
+    { "source": "/admin", "destination": "/dashboards/admin_dashboard_local.html" },
+    { "source": "/professional", "destination": "/dashboards/professional_dashboard.html" }
+  ]
+}
