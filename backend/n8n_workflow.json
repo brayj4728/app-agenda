@@ -439,6 +439,7 @@
             "parameters": {
                 "httpMethod": "POST",
                 "path": "ai-insights",
+                "responseMode": "responseNode",
                 "options": {}
             },
             "name": "Webhook AI",
