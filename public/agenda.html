@@ -206,6 +206,8 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            isolation: isolate;
+            /* Prevent z-index issues */
         }
 
         .card-wrapper {
@@ -214,6 +216,8 @@
             border-radius: 20px;
             height: 140px;
             flex-shrink: 0;
+            margin-bottom: 0;
+            /* Explicit spacing, gap handles it */
         }
 
         .delete-bg {
