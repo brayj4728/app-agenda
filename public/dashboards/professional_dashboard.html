@@ -346,6 +346,91 @@
             min-width: 90px;
             text-align: center;
         }
+
+        /* FILTER TOGGLE BUTTONS */
+        .toggle-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn.inactive {
+            background: #E5E5EA;
+            color: #8E8E93;
+        }
+
+        .toggle-btn.active-orange {
+            background: #FF9500;
+            color: white;
+        }
+
+        .toggle-btn.active-green {
+            background: #34C759;
+            color: white;
+        }
+
+        .toggle-btn.active-red {
+            background: #FF3B30;
+            color: white;
+        }
+
+        /* PATIENT ROW IMPROVEMENTS */
+        .patient-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .row-green {
+            border-left: 4px solid #34C759;
+        }
+
+        .row-red {
+            border-left: 4px solid #FF3B30;
+        }
+
+        .row-orange {
+            border-left: 4px solid #FF9500;
+        }
+
+        /* ACTION BUTTONS */
+        .st-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .arrow-btn {
+            background: #E5E5EA;
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -728,28 +813,29 @@
 
             filtered.forEach(app => {
                 const row = document.createElement('div');
-                const isGreen = currentFilter === 'APROBADA';
-                row.className = `patient-row ${isGreen ? 'row-green' : 'row-red'}`;
+                const colorClass = currentFilter === 'PENDIENTE' ? 'row-orange' : (currentFilter === 'APROBADA' ? 'row-green' : 'row-red');
+                row.className = `patient-row ${colorClass}`;
                 row.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px; flex:1;">
-                        <div style="width:32px; height:32px; background:rgba(0,0,0,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                    <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
+                        <div style="width:32px; height:32px; background:rgba(0,0,0,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <svg width="16" height="16" fill="none" stroke="black" stroke-width="2"><circle cx="8" cy="5" r="3"/><path d="M14 14a6 6 0 0 0-12 0"/></svg>
                         </div>
-                        <div>
-                            <div style="font-weight:700; font-size:14px;">${app.patientName}</div>
-                            <div style="font-size:11px; opacity:0.9;">Cedula ${app.patientCedula}</div>
+                        <div style="min-width:0; flex:1;">
+                            <div style="font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${app.patientName}</div>
+                            <div style="font-size:10px; opacity:0.7;">Cédula ${app.patientCedula}</div>
                         </div>
                     </div>
-                    <div style="text-align:right; margin-right:12px;">
-                        <div style="font-weight:800; font-size:14px;">CITA</div>
-                        <div style="font-size:11px;">${app.dateStr} ${app.time || ''}</div>
+                    <div style="text-align:right; margin-right:8px; flex-shrink:0;">
+                        <div style="font-weight:700; font-size:11px; color:#8E8E93;">CITA</div>
+                        <div style="font-size:10px; color:#000;">${app.dateStr}</div>
+                        <div style="font-size:10px; color:#000;">${app.time || ''}</div>
                     </div>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'APROBADA')" style="background:#34C759; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">A</button>
-                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'PENDIENTE')" style="background:#FF9500; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">P</button>
-                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'CANCELADA')" style="background:#FF3B30; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">C</button>
-                        <button class="arrow-btn" onclick="openProfile('${app.patientCedula}', '${app.patientName}', '${app.dateStr}')" style="margin-left:6px;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M7 17l10-10M7 7h10v10"/></svg>
+                    <div style="display:flex; gap:4px; align-items:center; flex-shrink:0;">
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'APROBADA')" style="background:#34C759; color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">A</button>
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'PENDIENTE')" style="background:#FF9500; color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">P</button>
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'CANCELADA')" style="background:#FF3B30; color:white; border:none; border-radius:6px; font-weight:700; cursor:pointer;">C</button>
+                        <button class="arrow-btn" onclick="openProfile('${app.patientCedula}', '${app.patientName}', '${app.dateStr}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M7 17l10-10M7 7h10v10"/></svg>
                         </button>
                     </div>
                 `;
