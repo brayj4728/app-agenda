@@ -810,22 +810,36 @@
 
         // OPEN WHATSAPP MANUALLY (from WhatsApp button)
         async function openWhatsApp(appointmentId) {
+            console.log('=== WhatsApp Button Clicked ===');
+            console.log('Appointment ID:', appointmentId);
+
             const appointment = allAppointments.find(a => a.id == appointmentId);
             if (!appointment) {
+                alert('❌ Error: Cita no encontrada');
+                console.error('Appointment not found:', appointmentId);
                 return;
             }
 
+            console.log('Appointment found:', appointment);
+            console.log('Patient cedula:', appointment.patientCedula);
+
             try {
-                const userRes = await fetch(`${USER_URL}?cedula=${appointment.patientCedula}`);
+                const userUrl = `${USER_URL}?cedula=${appointment.patientCedula}`;
+                console.log('Fetching user from:', userUrl);
+
+                const userRes = await fetch(userUrl);
                 const userData = await userRes.json();
+
+                console.log('User data received:', userData);
 
                 // Check if user exists and has phone
                 if (userData.success && userData.user) {
                     const phone = userData.user.phone;
+                    console.log('Phone number:', phone);
 
-                    // Only show alert if phone is actually missing or empty
+                    // Check if phone is missing or empty
                     if (!phone || phone.trim() === '') {
-                        // Don't block - just skip silently or show subtle message
+                        alert(`❌ ${appointment.patientName} no tiene teléfono registrado.\n\nEste paciente se registró antes de agregar el campo de teléfono.\n\nSolo los pacientes nuevos pueden recibir notificaciones por WhatsApp.`);
                         console.log('No phone number for patient:', appointment.patientName);
                         return;
                     }
@@ -844,10 +858,22 @@
 
                     // Open WhatsApp with pre-filled message
                     const whatsappUrl = `https://wa.me/57${phone}?text=${encodeURIComponent(message)}`;
-                    window.open(whatsappUrl, '_blank');
+                    console.log('Opening WhatsApp URL:', whatsappUrl);
+
+                    const newWindow = window.open(whatsappUrl, '_blank');
+                    if (!newWindow) {
+                        alert('⚠️ El navegador bloqueó la ventana de WhatsApp.\n\nPor favor, permite ventanas emergentes para este sitio.');
+                        console.error('Popup blocked by browser');
+                    } else {
+                        console.log('✓ WhatsApp window opened successfully');
+                    }
+                } else {
+                    alert('❌ Error: No se pudo obtener información del paciente');
+                    console.error('User not found or invalid response:', userData);
                 }
             } catch (e) {
                 console.error('Error getting patient phone:', e);
+                alert(`❌ Error al obtener datos del paciente:\n${e.message}`);
             }
         }
 
