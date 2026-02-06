@@ -837,8 +837,28 @@
         function closeModal() { document.getElementById('addModal').classList.remove('active'); }
         function goToTimeStep() { if (!document.getElementById('inputDate').value) alert('Fecha?'); else { document.getElementById('stepDate').style.display = 'none'; document.getElementById('stepTime').style.display = 'block'; } }
         async function confirmAdd() {
-            const d = document.getElementById('inputDate').value; const t = document.getElementById('inputTime').value;
-            if (res.success) { closeModal(); loadAppointments(); } else alert('Error: ' + JSON.stringify(res));
+            const d = document.getElementById('inputDate').value;
+            const t = document.getElementById('inputTime').value;
+
+            if (!d || !t) { alert('Por favor selecciona fecha y hora'); return; }
+
+            const payload = {
+                patientCedula: currentUser.cedula,
+                patientName: currentUser.name,
+                dateStr: d,
+                time: t,
+                type: 'Fisioterapia', // Defaulting to Fisioterapia as per app context
+                status: 'PENDIENTE'
+            };
+
+            const res = await createAppointment(payload);
+
+            if (res.success) {
+                closeModal();
+                loadAppointments();
+            } else {
+                alert('Error al agendar: ' + (res.message || JSON.stringify(res)));
+            }
         }
         function logout() { localStorage.removeItem('solarUser'); window.location.href = 'index.html'; }
 
