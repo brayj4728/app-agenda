@@ -411,7 +411,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst cedula = items[0].json.query.cedula;\n\nif (!cedula) return [{ json: { users: [] } }];\n\nconst user = users.find(u => String(u.cedula) === String(cedula));\nreturn [{ json: { users: user ? [user] : [] } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst cedula = items[0].json.query.cedula;\n\nif (!cedula) return [{ json: { success: false, message: 'Cedula no proporcionada' } }];\n\nconst user = users.find(u => String(u.cedula) === String(cedula));\n\nif (user) {\n    return [{ json: { success: true, user: user } }];\n}\n\nreturn [{ json: { success: false, message: 'Usuario no encontrado' } }];"
       },
       "name": "Get User Logic",
       "type": "n8n-nodes-base.function",

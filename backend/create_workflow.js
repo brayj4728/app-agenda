@@ -5,11 +5,11 @@ const workflow = JSON.parse(fs.readFileSync('backend/n8n_workflow_BACKUP.json', 
 
 // Buscar y actualizar el nodo "Register Logic"
 for (const node of workflow.nodes) {
-    if (node.name === 'Register Logic') {
-        console.log('✓ Encontrado nodo "Register Logic"');
+  if (node.name === 'Register Logic') {
+    console.log('✓ Encontrado nodo "Register Logic"');
 
-        // Código actualizado con campo phone
-        node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+    // Código actualizado con campo phone
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
 if (!staticData.users) { staticData.users = []; }
 
 const body = items[0].json.body;
@@ -30,9 +30,31 @@ staticData.users.push(newUser);
 
 return [{ json: { success: true, user: newUser } }];`;
 
-        console.log('✓ Campo "phone" agregado');
-        break;
-    }
+    console.log('✓ Campo "phone" agregado');
+    break;
+  }
+}
+
+// Buscar y actualizar el nodo "Get User Logic"
+for (const node of workflow.nodes) {
+  if (node.name === 'Get User Logic') {
+    console.log('✓ Encontrado nodo "Get User Logic"');
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+const users = staticData.users || [];
+const cedula = items[0].json.query.cedula;
+
+if (!cedula) return [{ json: { success: false, message: 'Cedula no proporcionada' } }];
+
+const user = users.find(u => String(u.cedula) === String(cedula));
+
+if (user) {
+    return [{ json: { success: true, user: user } }];
+}
+
+return [{ json: { success: false, message: 'Usuario no encontrado' } }];`;
+    console.log('✓ Respuesta de "Get User Logic" actualizada');
+    break;
+  }
 }
 
 // Guardar el workflow actualizado
