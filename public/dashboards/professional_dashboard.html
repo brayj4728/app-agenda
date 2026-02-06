@@ -812,7 +812,6 @@
         async function openWhatsApp(appointmentId) {
             const appointment = allAppointments.find(a => a.id == appointmentId);
             if (!appointment) {
-                alert('Cita no encontrada');
                 return;
             }
 
@@ -820,8 +819,17 @@
                 const userRes = await fetch(`${USER_URL}?cedula=${appointment.patientCedula}`);
                 const userData = await userRes.json();
 
-                if (userData.success && userData.user && userData.user.phone) {
+                // Check if user exists and has phone
+                if (userData.success && userData.user) {
                     const phone = userData.user.phone;
+
+                    // Only show alert if phone is actually missing or empty
+                    if (!phone || phone.trim() === '') {
+                        // Don't block - just skip silently or show subtle message
+                        console.log('No phone number for patient:', appointment.patientName);
+                        return;
+                    }
+
                     const status = appointment.status || 'PENDIENTE';
 
                     // Format message based on current status
@@ -837,12 +845,9 @@
                     // Open WhatsApp with pre-filled message
                     const whatsappUrl = `https://wa.me/57${phone}?text=${encodeURIComponent(message)}`;
                     window.open(whatsappUrl, '_blank');
-                } else {
-                    alert('Este paciente no tiene número de teléfono registrado.\n\nSolo los pacientes nuevos que se registren con teléfono podrán recibir notificaciones por WhatsApp.');
                 }
             } catch (e) {
                 console.error('Error getting patient phone:', e);
-                alert('Error al obtener datos del paciente');
             }
         }
 
