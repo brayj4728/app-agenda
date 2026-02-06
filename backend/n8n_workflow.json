@@ -1,0 +1,24 @@
+{
+    "name": "Solar Rosette Agenda (Final Complete System)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "appointments",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "name": "Webhook Create",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                200,
+                300
+            ],
+            "webhookId": "create-appt-webhook",
+            "id": "webhook-create"
+        },
+        /* ... (Contenido completo obtenido en el paso 311) ... */
+    ],
+    "connections": { ... }
+}
