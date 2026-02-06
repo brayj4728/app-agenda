@@ -57,6 +57,29 @@ return [{ json: { success: false, message: 'Usuario no encontrado' } }];`;
   }
 }
 
+// Actualizar el nodo "Delete Users Logic" para el nuevo profesional
+for (const node of workflow.nodes) {
+  if (node.name === 'Delete Users Logic') {
+    console.log('✓ Encontrado nodo "Delete Users Logic"');
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+if (!staticData.users) return [{ json: { success: true, deleted: 0 } }];
+
+const keepCedula = '1000491639'; // Carmona Cesar
+const initialCount = staticData.users.length;
+
+// Primero limpiamos citas si es necesario (opcional)
+// staticData.appointments = []; 
+
+// Filtramos para dejar solo a Carmona Cesar
+staticData.users = staticData.users.filter(u => String(u.cedula) === keepCedula);
+
+const deletedCount = initialCount - staticData.users.length;
+return [{ json: { success: true, deleted: deletedCount, remaining: staticData.users.length } }];`;
+    console.log('✓ Lógica de borrado actualizada para Carmona Cesar');
+    break;
+  }
+}
+
 // Guardar el workflow actualizado
 fs.writeFileSync('backend/n8n_workflow_FINAL.json', JSON.stringify(workflow, null, 2));
 
