@@ -1,12 +1,13 @@
 {
-  "version": 2,
-  "cleanUrls": true,
-  "outputDirectory": "public",
-  "rewrites": [
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/register", "destination": "/register.html" },
-    { "source": "/agenda", "destination": "/agenda.html" },
-    { "source": "/admin", "destination": "/dashboards/admin_dashboard_local.html" },
-    { "source": "/professional", "destination": "/dashboards/professional_dashboard.html" }
-  ]
+    "version": 2,
+    "cleanUrls": true,
+    "rewrites": [
+        { "source": "/", "destination": "/public/index.html" },
+        { "source": "/login", "destination": "/public/login.html" },
+        { "source": "/register", "destination": "/public/register.html" },
+        { "source": "/agenda", "destination": "/public/agenda.html" },
+        { "source": "/admin", "destination": "/public/dashboards/admin_dashboard_local.html" },
+        { "source": "/professional", "destination": "/public/dashboards/professional_dashboard.html" },
+        { "source": "/(.*)", "destination": "/public/$1" }
+    ]
 }
