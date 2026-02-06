@@ -96,11 +96,7 @@
     <div class="container">
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <h1>📅 Agenda de Citas (Admin)</h1>
-            <div>
-                <a href="user_manager.html" class="btn-refresh"
-                    style="text-decoration:none; background:#673ab7; margin-right:10px;">👥 Usuarios</a>
-                <button class="btn-refresh" onclick="loadCitas()">🔄 Actualizar Tabla</button>
-            </div>
+            <button class="btn-refresh" onclick="loadCitas()">🔄 Actualizar Tabla</button>
         </div>
         <div id="loading">Cargando datos del servidor...</div>
         <div id="error-msg" style="color:red; display:none;"></div>
