@@ -654,6 +654,38 @@
             return;
         }
 
+        // UPDATE APPOINTMENT STATUS (Professional Only)
+        async function updateAppointmentStatus(appointmentId, newStatus) {
+            // Optimistic UI Update
+            const appointment = allAppointments.find(a => a.id == appointmentId);
+            if (appointment) {
+                appointment.status = newStatus;
+                renderPatients(); // Refresh the list
+                renderDashboard(); // Update stats
+            }
+
+            // Backend Update
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: appointmentId,
+                        status: newStatus
+                    })
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    alert("Error al actualizar estado: " + (data.message || 'Error desconocido'));
+                    loadData(); // Revert on error
+                }
+            } catch (e) {
+                console.error("Error updating status:", e);
+                alert("Error de conexión al actualizar estado");
+                loadData(); // Revert on error
+            }
+        }
+
         // 6. Patients Logic
         function setPatientFilter(status) {
             currentFilter = status;
@@ -667,6 +699,7 @@
             }
             renderPatients();
         }
+
 
         function renderPatients() {
             const container = document.getElementById('patientsListContainer');
@@ -689,7 +722,7 @@
                 const isGreen = currentFilter === 'APROBADA';
                 row.className = `patient-row ${isGreen ? 'row-green' : 'row-red'}`;
                 row.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:12px; flex:1;">
                         <div style="width:32px; height:32px; background:rgba(0,0,0,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center;">
                             <svg width="16" height="16" fill="none" stroke="black" stroke-width="2"><circle cx="8" cy="5" r="3"/><path d="M14 14a6 6 0 0 0-12 0"/></svg>
                         </div>
@@ -698,13 +731,15 @@
                             <div style="font-size:11px; opacity:0.9;">Cedula ${app.patientCedula}</div>
                         </div>
                     </div>
-                    <div style="text-align:right;">
+                    <div style="text-align:right; margin-right:12px;">
                         <div style="font-weight:800; font-size:14px;">CITA</div>
-                        <div style="font-size:11px;">${app.dateStr}</div>
+                        <div style="font-size:11px;">${app.dateStr} ${app.time || ''}</div>
                     </div>
-                    <button class="arrow-btn" onclick="openProfile('${app.patientCedula}', '${app.patientName}', '${app.dateStr}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M7 17l10-10M7 7h10v10"/></svg>
-                    </button>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'APROBADA')" style="background:#34C759; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">A</button>
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'PENDIENTE')" style="background:#FF9500; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">P</button>
+                        <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'CANCELADA')" style="background:#FF3B30; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">C</button>
+                    </div>
                 `;
                 container.appendChild(row);
             });

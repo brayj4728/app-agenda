@@ -679,11 +679,7 @@
                             <svg style="width:24px;height:24px;fill:white"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                         </div>
                         <div class="card ${colorClass}" id="card-${app.id}">
-                            <div class="status-actions">
-                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'APROBADA', 'bg-green')">A</button>
-                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'PENDIENTE', 'bg-orange')">P</button>
-                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'CANCELADA', 'bg-red')">C</button>
-                            </div>
+                            <!-- Status control removed: Only professionals can change appointment status -->
                             <div class="card-type">${app.type || 'Cita'}</div>
                             <div class="card-date-bottom">${formatDateDisplay(app.dateStr)}</div>
                             <div class="card-right-group">
