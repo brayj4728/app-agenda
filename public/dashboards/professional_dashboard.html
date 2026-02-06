@@ -420,7 +420,8 @@
         <!-- VIEW: PACIENTES -->
         <div id="view-pacientes" class="tab-content" style="display:none; padding: 0 24px 100px;">
             <div class="toggle-container">
-                <div class="toggle-btn active-green" onclick="setPatientFilter('APROBADA')">Aprobadas</div>
+                <div class="toggle-btn active-orange" onclick="setPatientFilter('PENDIENTE')">Pendientes</div>
+                <div class="toggle-btn inactive" onclick="setPatientFilter('APROBADA')">Aprobadas</div>
                 <div class="toggle-btn inactive" onclick="setPatientFilter('CANCELADA')">Canceladas</div>
             </div>
             <div id="patientsListContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -541,7 +542,7 @@
         const API_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/appointments';
         const USER_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/users';
         let allAppointments = [];
-        let currentFilter = 'APROBADA';
+        let currentFilter = 'PENDIENTE';
         let currentProfileCedula = null;
         let currentAppointmentDate = null; // New global to store date
 
@@ -690,13 +691,19 @@
         function setPatientFilter(status) {
             currentFilter = status;
             const btns = document.querySelectorAll('.toggle-btn');
-            if (status === 'APROBADA') {
-                btns[0].className = 'toggle-btn active-green';
-                btns[1].className = 'toggle-btn inactive';
-            } else {
-                btns[0].className = 'toggle-btn inactive';
-                btns[1].className = 'toggle-btn active-red';
+
+            // Reset all buttons
+            btns.forEach(btn => btn.className = 'toggle-btn inactive');
+
+            // Set active button with appropriate color
+            if (status === 'PENDIENTE') {
+                btns[0].className = 'toggle-btn active-orange';
+            } else if (status === 'APROBADA') {
+                btns[1].className = 'toggle-btn active-green';
+            } else if (status === 'CANCELADA') {
+                btns[2].className = 'toggle-btn active-red';
             }
+
             renderPatients();
         }
 
@@ -708,8 +715,10 @@
 
             const filtered = allAppointments.filter(a => {
                 const s = (a.status || '').toUpperCase();
+                if (currentFilter === 'PENDIENTE') return s.includes('PEND');
                 if (currentFilter === 'APROBADA') return s.includes('APROB') || s.includes('REALIZ');
-                return s.includes('CANCEL');
+                if (currentFilter === 'CANCELADA') return s.includes('CANCEL');
+                return false;
             });
 
             if (filtered.length === 0) {
