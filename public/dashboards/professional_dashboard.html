@@ -748,6 +748,9 @@
                         <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'APROBADA')" style="background:#34C759; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">A</button>
                         <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'PENDIENTE')" style="background:#FF9500; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">P</button>
                         <button class="st-btn" onclick="event.stopPropagation(); updateAppointmentStatus('${app.id}', 'CANCELADA')" style="background:#FF3B30; color:white; border:none; border-radius:6px; width:32px; height:32px; font-weight:700; cursor:pointer; font-size:12px;">C</button>
+                        <button class="arrow-btn" onclick="openProfile('${app.patientCedula}', '${app.patientName}', '${app.dateStr}')" style="margin-left:6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M7 17l10-10M7 7h10v10"/></svg>
+                        </button>
                     </div>
                 `;
                 container.appendChild(row);
