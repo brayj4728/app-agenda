@@ -808,6 +808,44 @@
             }
         }
 
+        // OPEN WHATSAPP MANUALLY (from WhatsApp button)
+        async function openWhatsApp(appointmentId) {
+            const appointment = allAppointments.find(a => a.id == appointmentId);
+            if (!appointment) {
+                alert('Cita no encontrada');
+                return;
+            }
+
+            try {
+                const userRes = await fetch(`${USER_URL}?cedula=${appointment.patientCedula}`);
+                const userData = await userRes.json();
+
+                if (userData.success && userData.user && userData.user.phone) {
+                    const phone = userData.user.phone;
+                    const status = appointment.status || 'PENDIENTE';
+
+                    // Format message based on current status
+                    let message = '';
+                    if (status === 'APROBADA') {
+                        message = `✅ *Cita Aprobada*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia ha sido *APROBADA*:\n📅 Fecha: ${appointment.dateStr}\n🕐 Hora: ${appointment.time}\n\n¡Te esperamos!`;
+                    } else if (status === 'CANCELADA') {
+                        message = `❌ *Cita Cancelada*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia del ${appointment.dateStr} a las ${appointment.time} ha sido *CANCELADA*.\n\nPor favor, agenda una nueva cita si lo necesitas.`;
+                    } else {
+                        message = `⏳ *Cita Pendiente*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia está *PENDIENTE* de confirmación:\n📅 Fecha: ${appointment.dateStr}\n🕐 Hora: ${appointment.time}\n\nTe notificaremos cuando sea aprobada.`;
+                    }
+
+                    // Open WhatsApp with pre-filled message
+                    const whatsappUrl = `https://wa.me/57${phone}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                } else {
+                    alert('Este paciente no tiene número de teléfono registrado.\n\nSolo los pacientes nuevos que se registren con teléfono podrán recibir notificaciones por WhatsApp.');
+                }
+            } catch (e) {
+                console.error('Error getting patient phone:', e);
+                alert('Error al obtener datos del paciente');
+            }
+        }
+
         // 6. Patients Logic
         function setPatientFilter(status) {
             currentFilter = status;
