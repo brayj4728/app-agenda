@@ -797,14 +797,23 @@
         function goToTimeStep() { if (!document.getElementById('inputDate').value) alert('Fecha?'); else { document.getElementById('stepDate').style.display = 'none'; document.getElementById('stepTime').style.display = 'block'; } }
         async function confirmAdd() {
             const d = document.getElementById('inputDate').value; const t = document.getElementById('inputTime').value;
-            if (!t) return; let [h, m] = t.split(':'); h = parseInt(h); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
-            const res = await createAppointment({ patientName: currentUser.name, patientCedula: currentUser.cedula, dateStr: d, time: `${h}:${m}${ap}`, type: 'Cita' });
-            if (res.success) { closeModal(); loadAppointments(); } else alert('Error');
+            if (!t) { alert('Hora?'); return; }
+            const payload = {
+                cedula: currentUser.cedula,
+                date: d,
+                time: t,
+                patientName: currentUser.name,
+                patientCedula: currentUser.cedula,
+                type: 'Fisioterapia'
+            };
+            const res = await createAppointment(payload);
+            if (res.success) { closeModal(); loadAppointments(); } else alert('Error: ' + JSON.stringify(res));
         }
-        function logout() { localStorage.removeItem('solarUser'); window.location.href = '../index.html'; }
 
-        // INITIALIZATION
-        loadAppointments();
+        function logout() {
+            localStorage.removeItem('solarUser');
+            window.location.href = 'index.html';
+        }
     </script>
 </body>
 
