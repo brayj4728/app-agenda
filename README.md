@@ -1,4 +1,4 @@
-# 🌟 Solar Rosette - Sistema de Gestión de Citas Médicas
+# 🌟 Sistema de Gestión de Citas Médicas
 
 Sistema completo de gestión de citas para fisioterapia con inteligencia artificial integrada.
 
@@ -217,6 +217,7 @@ Este proyecto está optimizado para desplegarse en Vercel.
    - Verificar rutas `/login`, `/register`, `/agenda`, etc. (Configuradas en `vercel.json` raíz).
 
 ## 🔮 Roadmap
+
 
 - [ ] Autenticación con JWT
 - [ ] Base de datos persistente (PostgreSQL/Supabase)

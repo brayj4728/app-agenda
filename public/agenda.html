@@ -66,6 +66,35 @@
         }
 
         /* HEADER */
+        /* MOBILE TWEAKS */
+        @media (max-width: 480px) {
+            .card {
+                padding: 15px !important;
+            }
+
+            .card-time {
+                font-size: 20px !important;
+            }
+
+            .card-status-text {
+                font-size: 16px !important;
+            }
+
+            .big-month {
+                font-size: 40px !important;
+            }
+
+            .live-time {
+                font-size: 18px !important;
+            }
+
+            .card-date-bottom {
+                font-size: 12px !important;
+                bottom: 12px !important;
+                left: 15px !important;
+            }
+        }
+
         .top-bar {
             padding: 40px 20px 10px 20px;
             display: flex;
@@ -240,7 +269,10 @@
             position: absolute;
             bottom: 15px;
             left: 20px;
-            opacity: 0.9;
+            opacity: 1;
+            /* Make it fully opaque to be sure */
+            font-weight: 600;
+            /* Bolder to see better */
         }
 
         .card-right-group {
@@ -756,7 +788,16 @@
             }
         }
 
-        function formatDateDisplay(s) { if (!s) return ''; const p = s.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+        function formatDateDisplay(s) {
+            if (!s) return 'Fecha pendiente';
+            // Handle YYYY-MM-DD
+            if (s.includes('-')) {
+                const p = s.split('-');
+                if (p.length === 3) return `${p[2]}/${p[1]}/${p[0]}`;
+            }
+            // Handle other formats or return as is
+            return s;
+        }
         function setTab(t) {
             const list = document.getElementById('cardsList'); const cal = document.getElementById('calendarView');
             if (t === 'list') {
@@ -797,23 +838,12 @@
         function goToTimeStep() { if (!document.getElementById('inputDate').value) alert('Fecha?'); else { document.getElementById('stepDate').style.display = 'none'; document.getElementById('stepTime').style.display = 'block'; } }
         async function confirmAdd() {
             const d = document.getElementById('inputDate').value; const t = document.getElementById('inputTime').value;
-            if (!t) { alert('Hora?'); return; }
-            const payload = {
-                cedula: currentUser.cedula,
-                date: d,
-                time: t,
-                patientName: currentUser.name,
-                patientCedula: currentUser.cedula,
-                type: 'Fisioterapia'
-            };
-            const res = await createAppointment(payload);
             if (res.success) { closeModal(); loadAppointments(); } else alert('Error: ' + JSON.stringify(res));
         }
+        function logout() { localStorage.removeItem('solarUser'); window.location.href = 'index.html'; }
 
-        function logout() {
-            localStorage.removeItem('solarUser');
-            window.location.href = 'index.html';
-        }
+        // INITIALIZATION
+        loadAppointments();
     </script>
 </body>
 

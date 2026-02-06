@@ -1,8 +1,47 @@
+# Node modules
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
 .env
 .env.local
+.env.*.local
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
 logs/
+*.log
+
+# Temporary files
 *.tmp
+*.temp
+.cache/
+
+# Build outputs
 dist/
+build/
+
+# Sensitive data (si decides agregar configuración)
+config/secrets.json
+*.key
+*.pem
+
+# N8N local data (si usas N8N local)
+.n8n/
+
+# Test outputs
+test-results/
+coverage/

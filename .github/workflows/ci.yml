@@ -1,0 +1,66 @@
+name: CI - Solar Rosette
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Instalar dependencias
+      run: npm install
+    
+    - name: Verificar estructura de archivos
+      run: |
+        echo "Verificando estructura del proyecto..."
+        test -f public/index.html || exit 1
+        test -f public/login.html || exit 1
+        test -f public/agenda.html || exit 1
+        test -d public/dashboards || exit 1
+        echo "✓ Estructura verificada"
+    
+    - name: Validar archivos HTML
+      run: |
+        echo "Validando archivos HTML..."
+        for file in public/*.html public/dashboards/*.html; do
+          if [ -f "$file" ]; then
+            echo "Validando $file"
+            # Verificar que no haya errores de sintaxis básicos
+            grep -q "<!DOCTYPE html>" "$file" || exit 1
+          fi
+        done
+        echo "✓ HTML validado"
+    
+    - name: Verificar configuración
+      run: |
+        echo "Verificando archivos de configuración..."
+        test -f package.json || exit 1
+        test -f .gitignore || exit 1
+        test -f README.md || exit 1
+        echo "✓ Configuración verificada"
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+    
+    - name: Verificar formato de archivos
+      run: |
+        echo "Verificando formato..."
+        # Verificar que no haya archivos con espacios en nombres
+        find . -name "* *" -type f | grep -v node_modules && exit 1 || echo "✓ Sin espacios en nombres"
+        echo "✓ Formato verificado"
