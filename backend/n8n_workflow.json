@@ -466,7 +466,7 @@
         },
         {
             "parameters": {
-                "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyAseKung5RTdYoYaNhgrehfK-OUnGhQjgI",
+                "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyAseKung5RTdYoYaNhgrehfK-OUnGhQjgI",
                 "method": "POST",
                 "jsonParameters": true,
                 "options": {},
