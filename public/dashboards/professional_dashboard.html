@@ -938,11 +938,12 @@
         // INITIALIZATION
         loadData();
         switchTab('todo');
-    </script>
-</body>
 
-</html>
-</script>
+        // AUTO-SYNC: Reload data every 10 seconds to sync with changes
+        setInterval(() => {
+            loadData();
+        }, 10000); // 10 seconds
+    </script>
 </body>
 
 </html>
