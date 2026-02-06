@@ -239,6 +239,11 @@
                     <input type="text" class="form-input" placeholder="1098765432" id="patCedula">
                 </div>
 
+                <div class="form-group">
+                    <label>Teléfono (WhatsApp)</label>
+                    <input type="tel" class="form-input" placeholder="3001234567" id="patPhone" maxlength="10">
+                </div>
+
                 <button type="submit" class="submit-btn" style="margin-top:40px;">Registro</button>
             </form>
         </div>
@@ -435,11 +440,20 @@
                 const name = document.getElementById('patName').value;
                 const email = document.getElementById('patEmail').value;
                 const cedula = document.getElementById('patCedula').value;
-                if (!name || !email || !cedula) {
+                const phone = document.getElementById('patPhone').value;
+
+                if (!name || !email || !cedula || !phone) {
                     submitBtn.textContent = originalText; submitBtn.disabled = false;
                     return alert('Completa todos los campos');
                 }
-                payload = { name, email, cedula, role: 'patient' };
+
+                // Validate phone format (10 digits)
+                if (!/^\d{10}$/.test(phone)) {
+                    submitBtn.textContent = originalText; submitBtn.disabled = false;
+                    return alert('El teléfono debe tener 10 dígitos (ejemplo: 3001234567)');
+                }
+
+                payload = { name, email, cedula, phone, role: 'patient' };
             }
 
             try {

@@ -764,11 +764,47 @@
                 if (!data.success) {
                     alert("Error al actualizar estado: " + (data.message || 'Error desconocido'));
                     loadData(); // Revert on error
+                } else {
+                    // SUCCESS: Open WhatsApp to notify patient
+                    if (appointment) {
+                        sendWhatsAppNotification(appointment, newStatus);
+                    }
                 }
             } catch (e) {
                 console.error("Error updating status:", e);
                 alert("Error de conexión al actualizar estado");
                 loadData(); // Revert on error
+            }
+        }
+
+        // SEND WHATSAPP NOTIFICATION
+        async function sendWhatsAppNotification(appointment, newStatus) {
+            // Get patient phone from user data
+            try {
+                const userRes = await fetch(`${USER_URL}?cedula=${appointment.patientCedula}`);
+                const userData = await userRes.json();
+
+                if (userData.success && userData.user && userData.user.phone) {
+                    const phone = userData.user.phone;
+
+                    // Format message based on status
+                    let message = '';
+                    if (newStatus === 'APROBADA') {
+                        message = `✅ *Cita Aprobada*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia ha sido *APROBADA*:\n📅 Fecha: ${appointment.dateStr}\n🕐 Hora: ${appointment.time}\n\n¡Te esperamos!`;
+                    } else if (newStatus === 'CANCELADA') {
+                        message = `❌ *Cita Cancelada*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia del ${appointment.dateStr} a las ${appointment.time} ha sido *CANCELADA*.\n\nPor favor, agenda una nueva cita si lo necesitas.`;
+                    } else if (newStatus === 'PENDIENTE') {
+                        message = `⏳ *Cita Pendiente*\n\nHola ${appointment.patientName},\n\nTu cita de fisioterapia está *PENDIENTE* de confirmación:\n📅 Fecha: ${appointment.dateStr}\n🕐 Hora: ${appointment.time}\n\nTe notificaremos cuando sea aprobada.`;
+                    }
+
+                    // Open WhatsApp with pre-filled message
+                    const whatsappUrl = `https://wa.me/57${phone}?text=${encodeURIComponent(message)}`;
+                    window.open(whatsappUrl, '_blank');
+                } else {
+                    console.log('No phone number found for patient');
+                }
+            } catch (e) {
+                console.error('Error getting patient phone:', e);
             }
         }
 
