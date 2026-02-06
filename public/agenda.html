@@ -1,12 +1,811 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda - Solar Rosette</title>
-    <!-- ... (Contenido completo de agenda.html obtenido previamente) ... -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* DESKTOP / BODY CENTERING (Like Register.html) */
+        body {
+            background-color: #f0f2f5;
+            /* Light gray for desktop background */
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        /* MOBILE APP CONTAINER */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            background-color: #FAFAFA;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* Contain scrolls */
+        }
+
+        /* Responsive Frame for Desktop */
+        @media (min-width: 500px) {
+            .app-container {
+                max-width: 400px;
+                max-height: 850px;
+                height: 95vh;
+                border-radius: 30px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+            }
+        }
+
+        /* SCROLLABLE CONTENT AREA */
+        /* To allow scrolling behind fixed headers/footers */
+        .scroll-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
+            /* Space for Tab Bar */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* HEADER */
+        .top-bar {
+            padding: 40px 20px 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        .user-block h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            color: #1C1C1E;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .filter-pill {
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-pill.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .filter-pill.inactive {
+            background: #E5E5EA;
+            color: #8E8E93;
+        }
+
+        .add-circle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #E5E5EA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 24px;
+            font-weight: 300;
+        }
+
+        /* BIG DATE HEADER */
+        .big-date-container {
+            padding: 20px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .date-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .day-name {
+            font-size: 16px;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: -2px;
+        }
+
+        .ym-row {
+            font-size: 18px;
+            font-weight: 500;
+            color: #000;
+        }
+
+        .big-month {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 0.8;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+
+        .separator-line {
+            width: 2px;
+            height: 50px;
+            background: #000;
+            margin: 0 15px;
+        }
+
+        .live-time {
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        /* CARDS */
+        .cards-list {
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+
+        .delete-bg {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            background: #FF3B30;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 30px;
+            z-index: 1;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            border-radius: 20px;
+            z-index: 2;
+            background: #FF9500;
+            color: white;
+            transition: background 0.3s ease;
+            touch-action: pan-y;
+        }
+
+        .card.bg-orange {
+            background: #FF9500;
+        }
+
+        .card.bg-green {
+            background: #8CD37F;
+        }
+
+        .card.bg-red {
+            background: #FF1A1A;
+        }
+
+        .card-type {
+            font-size: 15px;
+            font-weight: 400;
+            position: absolute;
+            top: 15px;
+            left: 20px;
+        }
+
+        .card-date-bottom {
+            font-size: 14px;
+            position: absolute;
+            bottom: 15px;
+            left: 20px;
+            opacity: 0.9;
+        }
+
+        .card-right-group {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            text-align: right;
+        }
+
+        .card-time {
+            font-size: 28px;
+            font-weight: 500;
+            display: block;
+        }
+
+        .card-status-text {
+            font-size: 20px;
+            font-weight: 700;
+            display: block;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        /* BUTTONS inside Card */
+        .status-actions {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .st-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.8);
+            background: transparent;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .st-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* CALENDAR */
+        #calendarView {
+            display: none;
+            padding: 20px;
+        }
+
+        .cal-month-block {
+            margin-bottom: 30px;
+        }
+
+        .cal-month-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            border-left: 3px solid #000;
+            padding-left: 10px;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .cal-head {
+            font-size: 11px;
+            color: #8E8E93;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .cal-cell {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 4px;
+            border-radius: 8px;
+            font-size: 14px;
+            position: relative;
+            color: #1C1C1E;
+        }
+
+        .cal-cell.today {
+            background: #000;
+            color: #fff;
+            border-radius: 50%;
+        }
+
+        .dots-row {
+            display: flex;
+            gap: 2px;
+            margin-top: 2px;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        .dot.green {
+            background: #34C759;
+        }
+
+        .dot.red {
+            background: #FF3B30;
+        }
+
+        .dot.orange {
+            background: #FF9500;
+        }
+
+        /* TAB BAR (Bottom) */
+        .tab-bar {
+            position: absolute;
+            /* Absolute relative to container */
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            height: 70px;
+            display: flex;
+            border-top: 1px solid #E5E5EA;
+            padding-bottom: 15px;
+            z-index: 90;
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8E8E93;
+            cursor: pointer;
+        }
+
+        .tab-item.active {
+            color: #000;
+        }
+
+        .tab-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            fill: currentColor;
+        }
+
+        .tab-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* MODAL */
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 100%;
+            background: #F2F2F7;
+            border-top-left-radius: 25px;
+            border-top-right-radius: 25px;
+            padding: 30px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            border: none;
+        }
+
+        .modal-btn {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
+
 <body>
-    <!-- ... -->
+    <div class="app-container">
+        <!-- TOP SECTION -->
+        <div class="top-bar">
+            <div class="user-block">
+                <h1 class="user-name">Usuario</h1>
+                <div class="controls-row">
+                    <button class="filter-pill active" onclick="setTab('list')">Todo</button>
+                    <button class="filter-pill inactive" onclick="setTab('calendar')">Calendario</button>
+                </div>
+            </div>
+            <button class="add-circle-btn" onclick="openModal()">+</button>
+        </div>
+
+        <!-- DATE HEADER (Live) -->
+        <div class="big-date-container">
+            <div class="date-left">
+                <div class="day-name" id="headDay">--</div>
+                <div class="ym-row" id="headYM">--</div>
+                <div class="big-month" id="headBigMon">--</div>
+            </div>
+            <div class="separator-line"></div>
+            <div class="live-time" id="headTime">--:--</div>
+        </div>
+
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scroll-content">
+            <div class="cards-list" id="cardsList"></div>
+            <div id="calendarView"></div>
+        </div>
+
+        <!-- TAB BAR -->
+        <div class="tab-bar">
+            <!-- 'Inicio' removed as requested -->
+            <div class="tab-item" onclick="logout()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" transform="rotate(45 12 12)" />
+                </svg>
+                <span class="tab-label">Salir</span>
+            </div>
+        </div>
+
+        <!-- MODAL -->
+        <div class="modal" id="addModal">
+            <div class="modal-content">
+                <div style="display:flex;justify-content:space-between;margin-bottom:20px;">
+                    <h2 style="font-size:20px;margin:0;color:black;">Nueva Cita</h2>
+                    <span onclick="closeModal()" style="font-size:24px;cursor:pointer;color:black;">&times;</span>
+                </div>
+                <div id="stepDate">
+                    <label
+                        style="color:#8E8E93;font-size:12px;font-weight:600;margin-bottom:5px;display:block;">FECHA</label>
+                    <input type="date" class="input-field" id="inputDate">
+                    <button class="modal-btn" onclick="goToTimeStep()">Continuar</button>
+                </div>
+                <div id="stepTime" class="hidden">
+                    <label
+                        style="color:#8E8E93;font-size:12px;font-weight:600;margin-bottom:5px;display:block;">HORA</label>
+                    <input type="time" class="input-field" id="inputTime">
+                    <button class="modal-btn" onclick="confirmAdd()">Agendar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/appointments';
+        let currentUser = { name: 'Guest', role: 'patient', cedula: '000' };
+        try {
+            const stored = localStorage.getItem('solarUser');
+            if (stored && stored !== "undefined") {
+                currentUser = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.error("Error parsing user data", e);
+            localStorage.removeItem('solarUser');
+        }
+
+        document.querySelector('.user-name').textContent = currentUser.name;
+
+        /* CLOCK */
+        function updateLiveHeader() {
+            const now = new Date();
+            const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+            const mons = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+            document.getElementById('headDay').textContent = days[now.getDay()];
+            document.getElementById('headYM').textContent = `${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+            document.getElementById('headBigMon').textContent = mons[now.getMonth()];
+            let h = now.getHours(), m = now.getMinutes(); let ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+            document.getElementById('headTime').textContent = `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
+        }
+        setInterval(updateLiveHeader, 1000); updateLiveHeader();
+
+        let appointments = [];
+        loadAppointments();
+
+        async function loadAppointments() {
+            try {
+                const res = await fetch(`${API_URL}?cedula=${currentUser.cedula}&role=${currentUser.role}`);
+                const data = await res.json();
+                if (data.success && data.appointments) {
+                    // STRICT ISOLATION: Client-side filter to prevent any mix-up
+                    appointments = data.appointments.filter(a => String(a.patientCedula) === String(currentUser.cedula));
+                    render();
+                } else {
+                    appointments = [];
+                    render();
+                }
+            } catch (e) { appointments = []; render(); }
+        }
+
+        async function createAppointment(payload) {
+            try { return await (await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })).json(); } catch (e) { return { success: false }; }
+        }
+        async function updateStatus(id, newStatus, newColor) {
+            // Optimistic UI Update
+            const appt = appointments.find(a => a.id == id);
+            if (appt) { appt.status = newStatus; appt.color = newColor; render(); }
+
+            // Backend Update
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, status: newStatus, color: newColor })
+                });
+                const data = await res.json();
+                if (!data.success) {
+                    alert("Error guardando estado: " + data.message);
+                    loadAppointments(); // Revert
+                }
+            } catch (e) {
+                console.error(e);
+                loadAppointments(); // Revert
+            }
+        }
+
+        async function deleteAppointment(id) {
+            try { return await (await fetch(API_URL, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) })).json(); } catch (e) { return { success: false }; }
+        }
+
+        // Modified render function to use updateStatus
+        function render() {
+            const list = document.getElementById('cardsList');
+            const calView = document.getElementById('calendarView');
+            list.innerHTML = '';
+
+            // EMPTY STATE MESSAGE (Requested by User)
+            if (appointments.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align:center; padding: 60px 20px;">
+                        <div style="font-size: 18px; font-weight: 700; color: #1C1C1E; margin-bottom: 8px;">No tienes ninguna cita agendada</div>
+                        <div style="font-size: 14px; color: #8E8E93;">Toca el botón + para agendar una cita ahora.</div>
+                    </div>
+                `;
+            }
+
+            appointments.forEach(app => {
+                let st = (app.status || 'Pendiente').toLowerCase();
+                let colorClass = 'bg-orange'; let displayText = 'Pendiente';
+
+                // Normalize Display Logic
+                if (st.includes('aprob')) { colorClass = 'bg-green'; displayText = 'Aprobada'; }
+                else if (st.includes('cancel')) { colorClass = 'bg-red'; displayText = 'CANCELADA'; }
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+                wrapper.innerHTML = `
+                        <div class="delete-bg">
+                            <svg style="width:24px;height:24px;fill:white"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                        </div>
+                        <div class="card ${colorClass}" id="card-${app.id}">
+                            <div class="status-actions">
+                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'APROBADA', 'bg-green')">A</button>
+                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'PENDIENTE', 'bg-orange')">P</button>
+                                <button class="st-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); updateStatus('${app.id}', 'CANCELADA', 'bg-red')">C</button>
+                            </div>
+                            <div class="card-type">${app.type || 'Cita'}</div>
+                            <div class="card-date-bottom">${formatDateDisplay(app.dateStr)}</div>
+                            <div class="card-right-group">
+                                <div class="card-time">${app.time}</div>
+                                <div class="card-status-text">${displayText}</div>
+                            </div>
+                        </div>
+                    `;
+                list.appendChild(wrapper);
+                addSwipeLogic(wrapper, app.id);
+            });
+
+            if (calView.style.display === 'block') renderMultiMonthCalendar();
+        }
+
+        // Deprecated: window.updateStatus old handler replaced by new async function above.
+
+        function addSwipeLogic(element, id) {
+            const card = element.querySelector('.card');
+            let startX, startY, currentX, currentY;
+            let isDragging = false;
+
+            // --- TOUCH EVENTS ---
+            card.addEventListener('touchstart', e => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                card.style.transition = 'none';
+            }, { passive: false });
+
+            card.addEventListener('touchmove', e => {
+                currentX = e.touches[0].clientX;
+                currentY = e.touches[0].clientY;
+                handleMove(e, currentX, currentY);
+            }, { passive: false });
+
+            card.addEventListener('touchend', e => {
+                handleEnd();
+            });
+
+            // --- MOUSE EVENTS (Desktop) ---
+            card.addEventListener('mousedown', e => {
+                startX = e.clientX;
+                startY = e.clientY;
+                isDragging = true;
+                card.style.transition = 'none';
+                card.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                currentX = e.clientX;
+                currentY = e.clientY;
+                handleMove(e, currentX, currentY);
+            });
+
+            window.addEventListener('mouseup', e => {
+                if (!isDragging) return;
+                isDragging = false;
+                card.style.cursor = 'grab';
+                handleEnd();
+            });
+
+            // --- SHARED LOGIC ---
+            function handleMove(e, curX, curY) {
+                const diffX = curX - startX;
+                const diffY = curY - startY;
+
+                // ONLY allow Left Swipe if horizontal capability > vertical
+                // And strictly if diffX < 0 (Moving Left)
+                if (Math.abs(diffX) > Math.abs(diffY) && diffX < 0) {
+                    if (e.cancelable) e.preventDefault(); // Stop scrolling
+                    card.style.transform = `translate3d(${diffX}px, 0, 0)`;
+                }
+            }
+
+            function handleEnd() {
+                card.style.transition = 'transform 0.3s ease-out';
+                const diffX = (currentX || startX) - startX;
+
+                // Threshold to trigger delete
+                if (diffX < -100 && (currentX !== undefined)) {
+                    card.style.transform = `translate3d(-150%, 0, 0)`;
+                    removeAppointment(id);
+                } else {
+                    card.style.transform = `translate3d(0, 0, 0)`;
+                }
+                currentX = undefined;
+            }
+        }
+        async function removeAppointment(id) {
+            console.log('Attempting to delete ID:', id); // Debug
+            if (!id) { alert('Error: ID de cita no válido'); return; }
+
+            try {
+                const res = await deleteAppointment(id);
+                if (res.success) {
+                    appointments = appointments.filter(a => a.id !== id);
+                    render();
+                } else {
+                    alert('Error del servidor: ' + (res.message || 'No se pudo eliminar'));
+                    loadAppointments();
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+                loadAppointments();
+            }
+        }
+
+        function formatDateDisplay(s) { if (!s) return ''; const p = s.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+        function setTab(t) {
+            const list = document.getElementById('cardsList'); const cal = document.getElementById('calendarView');
+            if (t === 'list') {
+                list.style.display = 'flex'; cal.style.display = 'none';
+                document.querySelectorAll('.filter-pill')[0].className = 'filter-pill active';
+                document.querySelectorAll('.filter-pill')[1].className = 'filter-pill inactive';
+            } else {
+                list.style.display = 'none'; cal.style.display = 'block';
+                document.querySelectorAll('.filter-pill')[0].className = 'filter-pill inactive';
+                document.querySelectorAll('.filter-pill')[1].className = 'filter-pill active';
+                renderMultiMonthCalendar();
+            }
+        }
+        function renderMultiMonthCalendar() {
+            const cv = document.getElementById('calendarView'); cv.innerHTML = '';
+            const now = new Date(); let mSet = new Set(); mSet.add(`${now.getFullYear()}-${now.getMonth()}`);
+            appointments.forEach(a => { if (a.dateStr) { const [y, m] = a.dateStr.split('-'); mSet.add(`${y}-${parseInt(m) - 1}`); } });
+            Array.from(mSet).map(s => { const [y, m] = s.split('-'); return { year: parseInt(y), month: parseInt(m) } }).sort((a, b) => a.month - b.month).forEach(met => {
+                const d = document.createElement('div'); d.className = 'cal-month-block';
+                d.innerHTML = `<div class="cal-month-title">${["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"][met.month]} ${met.year}</div>`;
+                const g = document.createElement('div'); g.className = 'cal-grid';
+                ['D', 'L', 'M', 'M', 'J', 'V', 'S'].forEach(h => g.innerHTML += `<div class="cal-head">${h}</div>`);
+                const f = new Date(met.year, met.month, 1).getDay(); const dim = new Date(met.year, met.month + 1, 0).getDate();
+                for (let i = 0; i < f; i++)g.innerHTML += '<div></div>';
+                for (let i = 1; i <= dim; i++) {
+                    const c = document.createElement('div'); c.className = 'cal-cell'; c.textContent = i;
+                    if (met.year === now.getFullYear() && met.month === now.getMonth() && i === now.getDate()) c.classList.add('today');
+                    const ds = `${met.year}-${(met.month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+                    const ap = appointments.filter(a => a.dateStr === ds);
+                    if (ap.length > 0) { let h = '<div class="dots-row">'; ap.slice(0, 3).forEach(a => { let cl = 'orange'; let s = (a.status || '').toLowerCase(); if (s.includes('aprob')) cl = 'green'; if (s.includes('cancel')) cl = 'red'; h += `<div class="dot ${cl}"></div>`; }); h += '</div>'; c.innerHTML += h; }
+                    g.appendChild(c);
+                }
+                d.appendChild(g); cv.appendChild(d);
+            });
+        }
+        function openModal() { document.getElementById('addModal').classList.add('active'); document.getElementById('stepDate').style.display = 'block'; document.getElementById('stepTime').style.display = 'none'; }
+        function closeModal() { document.getElementById('addModal').classList.remove('active'); }
+        function goToTimeStep() { if (!document.getElementById('inputDate').value) alert('Fecha?'); else { document.getElementById('stepDate').style.display = 'none'; document.getElementById('stepTime').style.display = 'block'; } }
+        async function confirmAdd() {
+            const d = document.getElementById('inputDate').value; const t = document.getElementById('inputTime').value;
+            if (!t) return; let [h, m] = t.split(':'); h = parseInt(h); const ap = h >= 12 ? 'pm' : 'am'; h = h % 12 || 12;
+            const res = await createAppointment({ patientName: currentUser.name, patientCedula: currentUser.cedula, dateStr: d, time: `${h}:${m}${ap}`, type: 'Cita' });
+            if (res.success) { closeModal(); loadAppointments(); } else alert('Error');
+        }
+        function logout() { localStorage.removeItem('solarUser'); window.location.href = '../index.html'; }
+
+        // INITIALIZATION
+        loadAppointments();
+    </script>
 </body>
+
 </html>
