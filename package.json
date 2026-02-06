@@ -1,0 +1,18 @@
+{
+  "name": "solar-rosette",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de citas médicas con IA integrada",
+  "main": "public/index.html",
+  "scripts": {
+    "start": "npx http-server public -p 8000 -o"
+  },
+  "author": "Solar Rosette Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brayj4728/app-agenda.git"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
