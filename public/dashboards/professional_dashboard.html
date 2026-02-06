@@ -280,8 +280,10 @@
         .profile-overlay {
             position: fixed;
             top: 0;
-            left: 0;
+            left: 50%;
+            transform: translateX(-50%);
             width: 100%;
+            max-width: 400px;
             height: 100%;
             background: white;
             z-index: 9999;
@@ -814,10 +816,7 @@
                 const colorClass = currentFilter === 'PENDIENTE' ? 'row-orange' : (currentFilter === 'APROBADA' ? 'row-green' : 'row-red');
                 row.className = `patient-row ${colorClass}`;
                 row.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
-                        <div style="width:32px; height:32px; background:rgba(0,0,0,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <svg width="16" height="16" fill="none" stroke="black" stroke-width="2"><circle cx="8" cy="5" r="3"/><path d="M14 14a6 6 0 0 0-12 0"/></svg>
-                        </div>
+                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
                         <div style="min-width:0; flex:1;">
                             <div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#000;">${app.patientName}</div>
                             <div style="font-size:11px; opacity:0.6; color:#000;">Cédula ${app.patientCedula}</div>
