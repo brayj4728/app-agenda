@@ -313,9 +313,10 @@
 
                     // ROLE BASED REDIRECT
                     if (userToSave.role === 'professional' || userToSave.role === 'admin') {
-                        window.location.href = '/professional';
+                        // Direct path to file to avoid Rewrite 404s
+                        window.location.href = '/dashboards/professional_dashboard.html';
                     } else {
-                        window.location.href = '/agenda';
+                        window.location.href = '/agenda.html';
                     }
                 } else {
                     alert('Error: ' + (data.message || 'Credenciales incorrectas'));
