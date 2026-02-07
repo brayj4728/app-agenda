@@ -475,7 +475,8 @@
                     document.getElementById('globalBackBtn').style.display = 'none';
                     currentView = 'success';
                 } else {
-                    alert('Error en registro: ' + (data.message || JSON.stringify(data)));
+                    const errorMsg = data.message || 'Error desconocido';
+                    alert('Error en registro: ' + errorMsg);
                 }
             } catch (err) {
                 console.error(err);

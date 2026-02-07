@@ -192,7 +192,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.users) { staticData.users = []; }\n\nconst body = items[0].json.body;\n\n// Create User Object WITH PHONE FIELD\nconst newUser = {\n  id: Date.now(),\n  name: body.name,\n  email: body.email,\n  cedula: body.cedula,\n  phone: body.phone || '',\n  role: body.role || 'patient',\n  type: body.type || '',\n  registeredAt: new Date().toISOString()\n};\n\nstaticData.users.push(newUser);\n\nreturn [{ json: { success: true, user: newUser } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.users) { staticData.users = []; }\n\nconst body = items[0].json.body;\n\n// CHECK FOR DUPLICATES (Cedula or Email)\nconst existingUser = staticData.users.find(u => \n  String(u.cedula) === String(body.cedula) || \n  u.email === body.email\n);\n\nif (existingUser) {\n  return [{ \n    json: { \n      success: false, \n      message: 'La cédula o el correo electrónico ya se encuentran registrados.' \n    } \n  }];\n}\n\n// Create User Object\nconst newUser = {\n  id: Date.now(),\n  name: body.name,\n  email: body.email,\n  cedula: body.cedula,\n  phone: body.phone || '',\n  role: body.role || 'patient',\n  type: body.type || '',\n  registeredAt: new Date().toISOString()\n};\n\nstaticData.users.push(newUser);\n\nreturn [{ json: { success: true, user: newUser } }];"
       },
       "name": "Register Logic",
       "type": "n8n-nodes-base.function",
