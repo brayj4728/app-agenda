@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar Rosette - Agenda tu cita</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,7 +17,7 @@
         }
 
         body {
-            background-color: #f8f9fa;
+            background-color: #f4f4f7;
             height: 100vh;
             width: 100vw;
             display: flex;
@@ -28,41 +29,50 @@
         .container {
             width: 100%;
             height: 100%;
-            background: white;
+            background: #ffffff;
             position: relative;
             overflow: hidden;
             display: flex;
             max-width: 400px;
-            /* Mobile frame effect on desktop */
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.2);
         }
 
         /* ORANGE CIRCLE */
         .orange-circle {
             position: absolute;
-            width: 280px;
-            height: 280px;
-            background: linear-gradient(135deg, #FFB75E 0%, #FF7B00 100%);
+            width: 320px;
+            height: 320px;
+            background: linear-gradient(135deg, #FFB733 0%, #FF7B00 100%);
             border-radius: 50%;
-            right: -80px;
+            right: -100px;
             top: 50%;
             transform: translateY(-50%);
             z-index: 1;
-            box-shadow: 0 0 60px rgba(255, 123, 0, 0.3);
         }
 
-        /* LEFT PANEL (FROSTED) */
+        /* GLOW EFFECT (The Radiant Background) */
+        .glow-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 80% 50%, rgba(255, 123, 0, 0.4) 0%, rgba(255, 255, 255, 0) 60%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* LEFT PANEL (ULTRA BLUR) */
         .left-panel {
             position: absolute;
             left: 0;
             top: 0;
-            width: 50%;
+            width: 48%;
+            /* Slight shift left */
             height: 100%;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            z-index: 2;
-            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            /* Almost invisible but holds the blur */
+            backdrop-filter: blur(50px);
+            -webkit-backdrop-filter: blur(50px);
+            z-index: 3;
         }
 
         /* CONTENT LAYER */
@@ -74,97 +84,102 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 60px 30px;
+            padding: 80px 40px 60px;
         }
 
         /* HEADER */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: flex-start;
+        }
+
         .header-left {
             display: flex;
             flex-direction: column;
         }
 
         .month {
-            font-size: 42px;
-            font-weight: 300;
-            color: #333;
+            font-size: 38px;
+            font-weight: 200;
+            /* Extra Thin */
+            color: #1c1c1e;
             line-height: 1;
         }
 
         .year {
-            font-size: 68px;
-            font-weight: 700;
-            color: #111;
+            font-size: 78px;
+            font-weight: 800;
+            /* Heavy Black */
+            color: #000;
             line-height: 0.8;
-            margin-top: 5px;
+            margin-top: 0px;
+            letter-spacing: -3px;
         }
 
         .header-right {
-            position: absolute;
-            top: 60px;
-            right: 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-top: 5px;
         }
 
-        .btn-pill {
+        .btn-pill-small {
             background: #E5E5EA;
             border: none;
-            padding: 10px 24px;
+            padding: 9px 20px;
             border-radius: 20px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: #333;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .btn-pill:hover {
-            background: #D1D1D6;
-        }
-
-        .label-agenda {
-            font-size: 20px;
+        .label-agenda-small {
+            font-size: 18px;
             font-weight: 400;
             color: #333;
             margin-top: 10px;
         }
 
         /* CENTER TEXT */
-        .center-text {
-            width: 55%;
-            margin-top: 50px;
+        .center-text-block {
+            width: 50%;
+            margin-top: 40%;
+            transform: translateY(-50%);
         }
 
-        .main-title {
-            font-size: 44px;
-            font-weight: 800;
-            color: #4A4A4A;
-            line-height: 0.95;
-            letter-spacing: -1px;
+        .main-title-bold {
+            font-size: 36px;
+            font-weight: 900;
+            /* Maximum Bold */
+            color: #333;
+            line-height: 0.9;
+            letter-spacing: -1.5px;
         }
 
         /* FOOTER */
-        .footer {
+        .footer-nav {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 2px;
         }
 
-        .btn-inicio {
+        .btn-inicio-pill {
             background: #E5E5EA;
             border: none;
-            padding: 14px 40px;
-            border-radius: 30px;
-            font-size: 16px;
+            padding: 14px 36px;
+            border-radius: 24px;
+            font-size: 14px;
             font-weight: 600;
             color: #333;
             cursor: pointer;
         }
 
-        .btn-arrow {
-            width: 50px;
-            height: 50px;
+        .btn-arrow-circle {
+            width: 48px;
+            height: 48px;
             background: #E5E5EA;
             border-radius: 50%;
             display: flex;
@@ -174,7 +189,7 @@
             border: none;
         }
 
-        .btn-arrow svg {
+        .btn-arrow-circle svg {
             width: 20px;
             height: 20px;
             stroke: #000;
@@ -189,48 +204,50 @@
         <!-- Layer 1 -->
         <div class="orange-circle"></div>
 
-        <!-- Layer 2 -->
+        <!-- Layer 2: Glow Glow -->
+        <div class="glow-overlay"></div>
+
+        <!-- Layer 3: The Blur Wall -->
         <div class="left-panel"></div>
 
-        <!-- Layer 3 -->
+        <!-- Layer 4: Content -->
         <div class="content">
-            <!-- Top Section -->
-            <div style="display: flex; justify-content: space-between; width: 100%;">
+            <!-- Top -->
+            <div class="header-top">
                 <div class="header-left">
                     <div class="month">Febrero</div>
                     <div class="year">2026</div>
                 </div>
                 <div class="header-right">
-                    <button class="btn-pill" id="btnRegister">Registro</button>
-                    <div class="label-agenda">Agenda</div>
+                    <button class="btn-pill-small" id="btnRegister">Registro</button>
+                    <div class="label-agenda-small">Agenda</div>
                 </div>
             </div>
 
-            <!-- Middle Section -->
-            <div class="center-text">
-                <h1 class="main-title">Agenda<br>tu cita</h1>
+            <!-- Middle -->
+            <div class="center-text-block">
+                <h1 class="main-title-bold">Agenda<br>tu cita</h1>
             </div>
 
-            <!-- Bottom Section -->
-            <div class="footer">
-                <button class="btn-inicio" id="btnLogin">inicio</button>
-                <div class="btn-arrow" id="btnArrow">
+            <!-- Bottom -->
+            <div class="footer-nav">
+                <button class="btn-inicio-pill" id="btnLogin">inicio</button>
+                <button class="btn-arrow-circle" id="btnArrow">
                     <svg viewBox="0 0 24 24">
                         <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // Navigation Logic
-        const goToLogin = () => window.location.href = 'login.html';
-        const goToRegister = () => window.location.href = 'register.html';
+        const navL = () => window.location.href = 'login.html';
+        const navR = () => window.location.href = 'register.html';
 
-        document.getElementById('btnLogin').addEventListener('click', goToLogin);
-        document.getElementById('btnArrow').addEventListener('click', goToLogin);
-        document.getElementById('btnRegister').addEventListener('click', goToRegister);
+        document.getElementById('btnLogin').onclick = navL;
+        document.getElementById('btnArrow').onclick = navL;
+        document.getElementById('btnRegister').onclick = navR;
     </script>
 </body>
 
