@@ -106,7 +106,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\n\n// Ensure appointments array matches\nif (!staticData.appointments) { staticData.appointments = []; }\n\n// Handle Body or Query parsing\nconst body = items[0].json.body || items[0].json.query || {};\nconst idToDelete = body.id;\n\nconst initialLength = staticData.appointments.length;\n\n// Force String comparison to handle ID type mismatches\nstaticData.appointments = staticData.appointments.filter(a => String(a.id) !== String(idToDelete));\n\nconst wasDeleted = initialLength > staticData.appointments.length;\n\n// Return success:true regardless of deletion count to avoid UI errors, \n// but send 'deleted' status for debug.\nreturn [{ json: { success: true, deleted: wasDeleted } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.appointments) { staticData.appointments = []; }\n\nconst body = items[0].json.body || items[0].json.query || {};\nconst idToDelete = body.id;\nconst deleteAll = body.all === true || body.all === 'true';\n\nif (deleteAll) {\n    const count = staticData.appointments.length;\n    staticData.appointments = [];\n    return [{ json: { success: true, deleted: count, mode: 'all' } }];\n}\n\nconst initialLength = staticData.appointments.length;\nstaticData.appointments = staticData.appointments.filter(a => String(a.id) !== String(idToDelete));\nconst wasDeleted = initialLength > staticData.appointments.length;\n\nreturn [{ json: { success: true, deleted: wasDeleted, mode: 'single' } }];"
       },
       "name": "Delete Logic",
       "type": "n8n-nodes-base.function",

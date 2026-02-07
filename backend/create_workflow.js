@@ -123,6 +123,33 @@ return [{ json: { success: false, message: 'Usuario no encontrado' } }];`;
   }
 }
 
+// Actualizar el nodo "Delete Logic" para permitir borrado masivo
+for (const node of workflow.nodes) {
+  if (node.name === 'Delete Logic') {
+    console.log('✓ Encontrado nodo "Delete Logic"');
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+if (!staticData.appointments) { staticData.appointments = []; }
+
+const body = items[0].json.body || items[0].json.query || {};
+const idToDelete = body.id;
+const deleteAll = body.all === true || body.all === 'true';
+
+if (deleteAll) {
+    const count = staticData.appointments.length;
+    staticData.appointments = [];
+    return [{ json: { success: true, deleted: count, mode: 'all' } }];
+}
+
+const initialLength = staticData.appointments.length;
+staticData.appointments = staticData.appointments.filter(a => String(a.id) !== String(idToDelete));
+const wasDeleted = initialLength > staticData.appointments.length;
+
+return [{ json: { success: true, deleted: wasDeleted, mode: 'single' } }];`;
+    console.log('✓ Lógica de borrado de citas actualizada (soporta masivo)');
+    break;
+  }
+}
+
 // Actualizar el nodo "Delete Users Logic" para el nuevo profesional
 for (const node of workflow.nodes) {
   if (node.name === 'Delete Users Logic') {
