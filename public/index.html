@@ -60,19 +60,21 @@
             pointer-events: none;
         }
 
-        /* LEFT PANEL (ULTRA BLUR) */
+        /* LEFT PANEL (ULTRA BLUR & MIRROR EFFECT) */
         .left-panel {
             position: absolute;
             left: 0;
             top: 0;
             width: 48%;
-            /* Slight shift left */
             height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            /* Almost invisible but holds the blur */
-            backdrop-filter: blur(50px);
-            -webkit-backdrop-filter: blur(50px);
+            background: rgba(255, 255, 255, 0.15);
+            /* Slightly more opaque for better glass look */
+            backdrop-filter: blur(60px);
+            /* Increased blur */
+            -webkit-backdrop-filter: blur(60px);
             z-index: 3;
+            box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1);
+            /* Inner glow for mirror effect */
         }
 
         /* CONTENT LAYER */
@@ -90,7 +92,8 @@
         /* HEADER */
         .header-top {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
+            /* Align to right since left part is removed */
             width: 100%;
             align-items: flex-start;
         }
@@ -214,10 +217,6 @@
         <div class="content">
             <!-- Top -->
             <div class="header-top">
-                <div class="header-left">
-                    <div class="month">Febrero</div>
-                    <div class="year">2026</div>
-                </div>
                 <div class="header-right">
                     <button class="btn-pill-small" id="btnRegister">Registro</button>
                     <div class="label-agenda-small">Agenda</div>
