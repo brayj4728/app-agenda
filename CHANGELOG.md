@@ -42,7 +42,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - LocalStorage para gestión de sesión
 - Renderizado optimista para mejor UX
 
-### 📚 Documentación
+### 📚 DocumentaciónDe: https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=...
+
 - README completo con guía de instalación
 - DEPLOYMENT.md con múltiples opciones de hosting
 - CONTRIBUTING.md para colaboradores
