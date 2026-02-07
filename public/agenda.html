@@ -565,7 +565,9 @@
                 <div id="stepTime" class="hidden">
                     <label
                         style="color:#8E8E93;font-size:12px;font-weight:600;margin-bottom:5px;display:block;">HORA</label>
-                    <input type="time" class="input-field" id="inputTime">
+                    <select class="input-field" id="inputTime" style="background:white;color:#000;">
+                        <option value="">Cargando horas disponibles...</option>
+                    </select>
                     <button class="modal-btn" onclick="confirmAdd()">Agendar</button>
                 </div>
             </div>
@@ -875,11 +877,65 @@
             return totalMinutes >= startMinutes && totalMinutes <= endMinutes;
         }
 
+        async function goToTimeStep() {
+            const date = document.getElementById('inputDate').value;
+            if (!date) return alert('Selecciona una fecha');
+
+            // Load available hours for selected date
+            await loadAvailableHours(date);
+
+            document.getElementById('stepDate').classList.add('hidden');
+            document.getElementById('stepTime').classList.remove('hidden');
+        }
+
+        // NEW: Load available hours from backend
+        async function loadAvailableHours(selectedDate) {
+            const timeSelect = document.getElementById('inputTime');
+            timeSelect.innerHTML = '<option value="">Cargando...</option>';
+            timeSelect.disabled = true;
+
+            try {
+                // Call backend to get available hours
+                const res = await fetch(`${API_URL}/available-hours?date=${selectedDate}`);
+                const data = await res.json();
+
+                if (data.success && data.availableHours) {
+                    if (data.availableHours.length === 0) {
+                        timeSelect.innerHTML = '<option value="">No hay horas disponibles este día</option>';
+                        return;
+                    }
+
+                    // Populate dropdown with available hours
+                    timeSelect.innerHTML = '<option value="">Selecciona una hora</option>';
+                    data.availableHours.forEach(hour => {
+                        const option = document.createElement('option');
+                        option.value = hour;
+                        option.textContent = formatHourDisplay(hour);
+                        timeSelect.appendChild(option);
+                    });
+                    timeSelect.disabled = false;
+                } else {
+                    timeSelect.innerHTML = '<option value="">Error cargando horas</option>';
+                }
+            } catch (e) {
+                console.error('Error loading hours:', e);
+                timeSelect.innerHTML = '<option value="">Error de conexión</option>';
+            }
+        }
+
+        // Format hour for display (e.g., "09:00" -> "9:00 AM")
+        function formatHourDisplay(hour) {
+            const [h, m] = hour.split(':');
+            const hourNum = parseInt(h);
+            const hour12 = hourNum % 12 || 12;
+            const ampm = hourNum >= 12 ? 'PM' : 'AM';
+            return `${hour12}:${m} ${ampm}`;
+        }
         function openModal() {
             const modal = document.getElementById('addModal');
             modal.classList.add('active');
-            document.getElementById('stepDate').style.display = 'block';
-            document.getElementById('stepTime').style.display = 'none';
+            document.getElementById('stepDate').classList.remove('hidden');
+            document.getElementById('stepTime').classList.add('hidden');
 
             // Set minimum date to today (prevent past dates)
             const today = new Date().toISOString().split('T')[0];
@@ -895,57 +951,7 @@
             if (timeSelect) timeSelect.innerHTML = '';
         }
 
-        function goToTimeStep() {
-            const selectedDate = document.getElementById('inputDate').value;
-            if (!selectedDate) {
-                alert('Por favor selecciona una fecha');
-                return;
-            }
 
-            // Get available slots for selected date
-            const availableSlots = getAvailableSlots(selectedDate);
-
-            if (availableSlots.length === 0) {
-                alert('No hay horarios disponibles para esta fecha. Por favor selecciona otra fecha.');
-                return;
-            }
-
-            // Generate time slot dropdown
-            const timeContainer = document.getElementById('stepTime');
-            const existingSelect = document.getElementById('inputTime');
-
-            // Create select element if it doesn't exist or is an input
-            let timeSelect;
-            if (!existingSelect || existingSelect.tagName !== 'SELECT') {
-                timeSelect = document.createElement('select');
-                timeSelect.id = 'inputTime';
-                timeSelect.className = 'input-field';
-
-                // Replace existing input with select
-                if (existingSelect) {
-                    existingSelect.parentNode.replaceChild(timeSelect, existingSelect);
-                } else {
-                    // Find the label and insert after it
-                    const label = timeContainer.querySelector('label');
-                    label.insertAdjacentElement('afterend', timeSelect);
-                }
-            } else {
-                timeSelect = existingSelect;
-            }
-
-            // Clear and populate options
-            timeSelect.innerHTML = '<option value="">Selecciona un horario</option>';
-            availableSlots.forEach(slot => {
-                const option = document.createElement('option');
-                option.value = slot;
-                option.textContent = slot;
-                timeSelect.appendChild(option);
-            });
-
-            // Show time step
-            document.getElementById('stepDate').style.display = 'none';
-            document.getElementById('stepTime').style.display = 'block';
-        }
         async function confirmAdd() {
             const d = document.getElementById('inputDate').value;
             const timeSelect = document.getElementById('inputTime');
@@ -966,19 +972,22 @@
                 return;
             }
 
-            // Validate time is within business hours (9:00 AM - 6:00 PM)
-            if (!isValidBusinessHour(t)) {
-                alert('El horario debe estar entre 9:00 AM y 6:00 PM');
-                return;
-            }
+            // BACKEND VALIDATION: Double-check availability before creating
+            try {
+                const checkRes = await fetch(`${API_URL}/available-hours?date=${d}`);
+                const checkData = await checkRes.json();
 
-            // Check if slot is still available (double-check)
-            const availableSlots = getAvailableSlots(d);
-            if (!availableSlots.includes(t)) {
-                alert('Este horario ya no está disponible. Por favor selecciona otro.');
-                // Refresh the time slots
-                goToTimeStep();
-                return;
+                if (checkData.success && checkData.availableHours) {
+                    if (!checkData.availableHours.includes(t)) {
+                        alert('⚠️ Esta hora acaba de ser reservada por otro paciente. Por favor selecciona otra hora.');
+                        // Reload available hours
+                        await loadAvailableHours(d);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Error validating availability:', e);
+                // Continue anyway if backend check fails
             }
 
             const payload = {
@@ -996,7 +1005,13 @@
                 closeModal();
                 loadAppointments();
             } else {
-                alert('Error al agendar: ' + (res.message || JSON.stringify(res)));
+                // Check if error is due to conflict
+                if (res.message && res.message.includes('conflict')) {
+                    alert('⚠️ Esta hora ya no está disponible. Por favor selecciona otra.');
+                    await loadAvailableHours(d);
+                } else {
+                    alert('Error al agendar: ' + (res.message || JSON.stringify(res)));
+                }
             }
         }
         function logout() { localStorage.removeItem('solarUser'); window.location.href = 'index.html'; }
