@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.appointments) { staticData.appointments = []; }\nconst body = items[0].json.body;\n\n// CONFLICT DETECTION\nconst conflict = staticData.appointments.find(a => \n  a.dateStr == body.dateStr && \n  a.time == body.time &&\n  a.status != 'CANCELADA'\n);\nif (conflict) {\n  return [{ json: { success: false, message: 'Lo sentimos, esta hora ya está ocupada por otro paciente.' } }];\n}\n\nconst newAppt = {\n  id: Date.now(),\n  patientName: body.patientName,\n  patientCedula: body.patientCedula,\n  dateStr: body.dateStr,\n  time: body.time,\n  type: body.type || 'Cita',\n  status: 'PENDIENTE',\n  color: 'bg-orange'\n};\nstaticData.appointments.push(newAppt);\nreturn [{ json: { success: true, appointment: newAppt } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.appointments) { staticData.appointments = []; }\nconst body = items[0].json.body;\n\n// CONFLICT DETECTION\nconst conflict = staticData.appointments.find(a => \n  a.dateStr == body.dateStr && \n  a.time == body.time &&\n  a.status != 'CANCELADA'\n);\nif (conflict) {\n  return [{ json: { success: false, message: 'Lo sentimos, esta hora ya está ocupada por otro paciente.' } }];\n}\n\nconst newAppt = {\n  id: Date.now(),\n  patientName: body.patientName,\n  patientCedula: body.patientCedula,\n  dateStr: body.dateStr,\n  time: body.time,\n  type: body.type || 'Cita',\n  status: 'PENDIENTE',\n  color: 'bg-orange',\n  whatsappSent: false // INITIAL STATE\n};\nstaticData.appointments.push(newAppt);\nreturn [{ json: { success: true, appointment: newAppt } }];"
       },
       "name": "Create Logic",
       "type": "n8n-nodes-base.function",
@@ -149,7 +149,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\n\nif (!staticData.appointments) { staticData.appointments = []; }\n\nconst body = items[0].json.body || {};\nconst idToUpdate = body.id;\nconst newStatus = body.status;\nconst newColor = body.color;\n\n// Find and Update\nconst matching = staticData.appointments.find(a => String(a.id) === String(idToUpdate));\n\nif (matching) {\n    if(newStatus) matching.status = newStatus;\n    if(newColor) matching.color = newColor;\n    return [{ json: { success: true, appointment: matching } }];\n}\n\nreturn [{ json: { success: false, message: 'Cita no encontrada' } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\n\nif (!staticData.appointments) { staticData.appointments = []; }\n\nconst body = items[0].json.body || {};\nconst idToUpdate = body.id;\nconst newStatus = body.status;\nconst newColor = body.color;\nconst whatsappSent = body.whatsappSent;\n\n// Find and Update\nconst matching = staticData.appointments.find(a => String(a.id) === String(idToUpdate));\n\nif (matching) {\n    if(newStatus) matching.status = newStatus;\n    if(newColor) matching.color = newColor;\n    if(whatsappSent !== undefined) matching.whatsappSent = whatsappSent;\n    return [{ json: { success: true, appointment: matching } }];\n}\n\nreturn [{ json: { success: false, message: 'Cita no encontrada' } }];"
       },
       "name": "Update Logic",
       "type": "n8n-nodes-base.function",

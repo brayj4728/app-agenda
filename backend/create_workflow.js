@@ -35,6 +35,72 @@ return [{ json: { success: true, user: newUser } }];`;
   }
 }
 
+// Buscar y actualizar el nodo "Create Logic"
+for (const node of workflow.nodes) {
+  if (node.name === 'Create Logic') {
+    console.log('✓ Encontrado nodo "Create Logic"');
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+if (!staticData.appointments) { staticData.appointments = []; }
+const body = items[0].json.body;
+
+// CONFLICT DETECTION
+const conflict = staticData.appointments.find(a => 
+  a.dateStr == body.dateStr && 
+  a.time == body.time &&
+  a.status != 'CANCELADA'
+);
+if (conflict) {
+  return [{ json: { success: false, message: 'Lo sentimos, esta hora ya está ocupada por otro paciente.' } }];
+}
+
+const newAppt = {
+  id: Date.now(),
+  patientName: body.patientName,
+  patientCedula: body.patientCedula,
+  dateStr: body.dateStr,
+  time: body.time,
+  type: body.type || 'Cita',
+  status: 'PENDIENTE',
+  color: 'bg-orange',
+  whatsappSent: false // INITIAL STATE
+};
+staticData.appointments.push(newAppt);
+return [{ json: { success: true, appointment: newAppt } }];`;
+    console.log('✓ Campo "whatsappSent" agregado a Create Logic');
+    break;
+  }
+}
+
+// Buscar y actualizar el nodo "Update Logic"
+for (const node of workflow.nodes) {
+  if (node.name === 'Update Logic') {
+    console.log('✓ Encontrado nodo "Update Logic"');
+    node.parameters.functionCode = `const staticData = getWorkflowStaticData('global');
+
+if (!staticData.appointments) { staticData.appointments = []; }
+
+const body = items[0].json.body || {};
+const idToUpdate = body.id;
+const newStatus = body.status;
+const newColor = body.color;
+const whatsappSent = body.whatsappSent;
+
+// Find and Update
+const matching = staticData.appointments.find(a => String(a.id) === String(idToUpdate));
+
+if (matching) {
+    if(newStatus) matching.status = newStatus;
+    if(newColor) matching.color = newColor;
+    if(whatsappSent !== undefined) matching.whatsappSent = whatsappSent;
+    return [{ json: { success: true, appointment: matching } }];
+}
+
+return [{ json: { success: false, message: 'Cita no encontrada' } }];`;
+    console.log('✓ Campo "whatsappSent" agregado a Update Logic');
+    break;
+  }
+}
+
 // Buscar y actualizar el nodo "Get User Logic"
 for (const node of workflow.nodes) {
   if (node.name === 'Get User Logic') {
