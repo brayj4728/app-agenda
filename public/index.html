@@ -67,14 +67,14 @@
             top: 0;
             width: 48%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.15);
-            /* Slightly more opaque for better glass look */
-            backdrop-filter: blur(60px);
-            /* Increased blur */
-            -webkit-backdrop-filter: blur(60px);
+            background: rgba(255, 255, 255, 0.05);
+            /* Lower opacity for perfect ghosting */
+            backdrop-filter: blur(100px);
+            /* Max diffusion */
+            -webkit-backdrop-filter: blur(100px);
             z-index: 3;
-            box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1);
-            /* Inner glow for mirror effect */
+            /* Extra soft inner diffussion */
+            box-shadow: inset 0 0 200px rgba(255, 255, 255, 0.03);
         }
 
         /* CONTENT LAYER */
