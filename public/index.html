@@ -60,21 +60,25 @@
             pointer-events: none;
         }
 
-        /* LEFT PANEL (ULTRA BLUR & MIRROR EFFECT) */
+        /* LEFT PANEL (PROMINENT MIRROR EFFECT) */
         .left-panel {
             position: absolute;
             left: 0;
             top: 0;
             width: 48%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            /* Lower opacity for perfect ghosting */
-            backdrop-filter: blur(100px);
-            /* Max diffusion */
-            -webkit-backdrop-filter: blur(100px);
+            /* Increased white opacity for visibility, but keeping the "glass" look */
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(120px) saturate(180%);
+            /* Strong blur + color saturation boost */
+            -webkit-backdrop-filter: blur(120px) saturate(180%);
             z-index: 3;
-            /* Extra soft inner diffussion */
-            box-shadow: inset 0 0 200px rgba(255, 255, 255, 0.03);
+            /* Defined border to "cut" the glass */
+            border-right: 1px solid rgba(255, 255, 255, 0.4);
+            /* Stronger inner glow for the mirror feeling */
+            box-shadow:
+                inset 10px 0 60px rgba(255, 255, 255, 0.2),
+                inset -0px 0 20px rgba(255, 255, 255, 0.1);
         }
 
         /* CONTENT LAYER */
