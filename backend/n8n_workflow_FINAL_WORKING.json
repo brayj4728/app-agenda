@@ -411,7 +411,7 @@
     },
     {
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst cedula = items[0].json.query.cedula;\n\nif (!cedula) return [{ json: { success: false, message: 'No cedula provided' } }];\n\nconst user = users.find(u => String(u.cedula) === String(cedula));\n\nif (user) {\n    return [{ json: { success: true, user: user } }];\n} else {\n    return [{ json: { success: false, message: 'Usuario no encontrado' } }];\n}"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst cedula = items[0].json.query.cedula;\nconst role = items[0].json.query.role;\n\nif (!cedula) return [{ json: { success: false, message: 'No cedula provided' } }];\n\n// ADMIN LIST ALL\nif (cedula === 'ALL' && role === 'admin') {\n    return [{ json: { success: true, users: users } }];\n}\n\nconst user = users.find(u => String(u.cedula) === String(cedula));\n\nif (user) {\n    return [{ json: { success: true, user: user, users: [user] } }];\n} else {\n    return [{ json: { success: false, message: 'Usuario no encontrado', users: [] } }];\n}"
       },
       "name": "Get User Logic",
       "type": "n8n-nodes-base.function",
