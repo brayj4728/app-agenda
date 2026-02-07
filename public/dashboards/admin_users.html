@@ -144,8 +144,9 @@
         </table>
     </div>
 
+    <script src="../config.js"></script>
     <script>
-        const USER_API = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/users';
+        const USER_API = CONFIG.USERS_URL;
 
         async function loadUsers() {
             const status = document.getElementById('status');

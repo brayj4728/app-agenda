@@ -704,9 +704,10 @@
         </div>
     </div>
 
+    <script src="../config.js"></script>
     <script>
-        const API_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/appointments';
-        const USER_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/users';
+        const API_URL = CONFIG.APPOINTMENTS_URL;
+        const USER_URL = CONFIG.USERS_URL;
         let allAppointments = [];
         let currentFilter = 'PENDIENTE';
         let currentProfileCedula = null;
@@ -946,7 +947,7 @@
                     }
 
                     // Open WhatsApp with pre-filled message
-                    const whatsappUrl = `https://wa.me/57${phone}?text=${encodeURIComponent(message)}`;
+                    const whatsappUrl = `https://wa.me/${CONFIG.WHATSAPP_COUNTRY_CODE}${phone}?text=${encodeURIComponent(message)}`;
                     console.log('Opening WhatsApp URL:', whatsappUrl);
 
                     const newWindow = window.open(whatsappUrl, '_blank');

@@ -385,6 +385,7 @@
         }
     </style>
 
+    <script src="config.js"></script>
     <script>
         // NAVIGATION LOGIC
         let currentView = 'selection'; // selection, professional, patient, success
@@ -457,7 +458,7 @@
             }
 
             try {
-                const response = await fetch('https://n8n-n8n.xxboi7.easypanel.host/webhook/register', {
+                const response = await fetch(CONFIG.REGISTER_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

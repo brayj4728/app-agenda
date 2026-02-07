@@ -574,8 +574,9 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
     <script>
-        const API_URL = 'https://n8n-n8n.xxboi7.easypanel.host/webhook/appointments';
+        const API_URL = CONFIG.APPOINTMENTS_URL;
         let currentUser = { name: 'Guest', role: 'patient', cedula: '000' };
         try {
             const stored = localStorage.getItem('solarUser');
@@ -896,7 +897,7 @@
 
             try {
                 // Call backend to get available hours
-                const res = await fetch(`${API_URL}/available-hours?date=${selectedDate}`);
+                const res = await fetch(`${CONFIG.AVAILABLE_HOURS_URL}?date=${selectedDate}`);
                 const data = await res.json();
 
                 if (data.success && data.availableHours) {
@@ -974,7 +975,7 @@
 
             // BACKEND VALIDATION: Double-check availability before creating
             try {
-                const checkRes = await fetch(`${API_URL}/available-hours?date=${d}`);
+                const checkRes = await fetch(`${CONFIG.AVAILABLE_HOURS_URL}?date=${d}`);
                 const checkData = await checkRes.json();
 
                 if (checkData.success && checkData.availableHours) {
