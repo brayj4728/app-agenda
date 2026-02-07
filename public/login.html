@@ -162,6 +162,31 @@
                 transform: translateY(0);
             }
         }
+
+        /* EXIT BUTTON BOTTOM */
+        .exit-footer {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .exit-footer:hover {
+            opacity: 1;
+        }
+
+        .exit-footer svg {
+            margin-bottom: 5px;
+        }
+
+        .exit-footer span {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
     </style>
 </head>
 
@@ -204,6 +229,15 @@
                 </div>
                 <button type="submit" class="submit-btn">Ingreso</button>
             </form>
+
+            <div class="exit-footer" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Salir</span>
+            </div>
         </div>
 
         <!-- VIEW 3: PROFESSIONAL LOGIN -->
@@ -221,6 +255,15 @@
                 </div>
                 <button type="submit" class="submit-btn">Ingreso</button>
             </form>
+
+            <div class="exit-footer" onclick="goBack()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Salir</span>
+            </div>
         </div>
 
     </div>
