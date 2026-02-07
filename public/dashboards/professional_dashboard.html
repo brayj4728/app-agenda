@@ -474,6 +474,34 @@
             cursor: pointer;
             flex-shrink: 0;
         }
+
+        /* EXIT BUTTON BOTTOM */
+        .exit-footer {
+            margin-top: 40px;
+            padding-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            user-select: none;
+            width: 100%;
+        }
+
+        .exit-footer:hover {
+            opacity: 1;
+        }
+
+        .exit-footer svg {
+            margin-bottom: 8px;
+        }
+
+        .exit-footer span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
     </style>
 </head>
 
@@ -598,6 +626,16 @@
 
 
 
+
+        <!-- EXIT FOOTER -->
+        <div class="exit-footer" onclick="logout()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            <span>Salir</span>
+        </div>
 
         <!-- PROFILE OVERLAY -->
         <div id="profileOverlay" class="profile-overlay">
@@ -1340,6 +1378,11 @@
         setInterval(() => {
             loadData();
         }, 10000); // 10 seconds
+
+        function logout() {
+            localStorage.removeItem('solarUser');
+            window.location.href = '../login.html';
+        }
     </script>
 </body>
 
