@@ -22,7 +22,8 @@ const CONFIG = {
     get LOGIN_URL() { return `${this.N8N_BASE_URL}/login`; },
     get AI_INSIGHTS_URL() { return `${this.N8N_BASE_URL}/ai-insights`; },
     get AGENDA_VIEW_URL() { return `${this.N8N_BASE_URL}/agenda-view`; },
-    get AVAILABLE_HOURS_URL() { return `${this.N8N_BASE_URL}/appointments/available-hours`; }
+    get AVAILABLE_HOURS_URL() { return `${this.N8N_BASE_URL}/appointments/available-hours`; },
+    get APPROVE_URL() { return `${this.N8N_BASE_URL}/approve`; }
 };
 
 // Export to be used in HTML scripts

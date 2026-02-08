@@ -201,14 +201,25 @@
                         status.innerText = 'No hay usuarios registrados.';
                     } else {
                         data.users.forEach(u => {
+                            const isPending = u.role === 'professional' && u.status === 'pending';
+                            const statusBadge = isPending ?
+                                `<span style="background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; font-size:0.8em; margin-left:5px;">⚠️ Pendiente</span>` :
+                                (u.status === 'active' ? `<span style="color:green; font-size:0.8em; margin-left:5px;">✅ Activo</span>` : '');
+
+                            const approveBtn = isPending ?
+                                `<button onclick="approveUser('${u.cedula}')" style="background:#2e7d32; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">Aprobar</button>` : '';
+
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-                        <td>${u.name}</td>
+                        <td>${u.name} ${statusBadge}</td>
                         <td>${u.email || '-'}</td>
                         <td>${u.cedula}</td>
                         <td><span style="background:${u.role === 'professional' ? '#e3f2fd' : '#f5f5f5'}; padding:4px 8px; border-radius:4px; font-weight:bold; color:${u.role === 'professional' ? '#1565c0' : '#666'}">${u.role}</span></td>
                         <td><code>${u.clientId || 'N/A'}</code></td>
-                        <td><button class="btn-table-del" onclick="deleteUser('${u.cedula}')">Eliminar</button></td>
+                        <td>
+                            ${approveBtn}
+                            <button class="btn-table-del" onclick="deleteUser('${u.cedula}')">Eliminar</button>
+                        </td>
                     `;
                             tbody.appendChild(tr);
                         });
@@ -316,6 +327,27 @@
             } catch (e) {
                 console.error(e);
                 alert('❌ Error Técnico:\n' + e.message + '\n\nRevisa si el servidor n8n está activo.');
+            }
+        }
+
+        async function approveUser(cedula) {
+            if (!confirm('¿Aprobar acceso a este profesional?')) return;
+            const status = document.getElementById('status');
+            status.innerText = 'Aprobando...';
+
+            try {
+                // Call webhook
+                const res = await fetch(`${CONFIG.APPROVE_URL}?cedula=${cedula}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('✅ Profesional aprobado exitosamente.');
+                    loadUsers();
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            } catch (e) {
+                alert('Connection Error: ' + e.message);
             }
         }
 

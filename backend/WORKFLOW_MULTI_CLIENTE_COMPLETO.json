@@ -200,7 +200,7 @@
         1300
       ],
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst newUser = items[0].json.body;\n\n// MULTI-TENANT LOGIC\n// If registering a PROFESSIONAL -> They BECOME the Client (Tenant)\nif (newUser.role === 'professional') {\n    newUser.clientId = newUser.cedula;\n}\n\n// DUPLICATE CHECK\n// If Professional: Check if cedula exists globally (as they are unique tenants)\n// If Patient: Check if cedula exists WITHIN that clientId\nlet exists;\nif (newUser.role === 'professional') {\n    exists = users.find(u => u.cedula === newUser.cedula); \n} else {\n    exists = users.find(u => u.cedula === newUser.cedula && u.clientId === newUser.clientId);\n}\n\nif (exists) {\n    return [{ json: { success: false, message: 'Usuario/Profesional ya registrado.' } }];\n}\n\n// SAVE USER\nusers.push({\n    ...newUser,\n    id: Date.now()\n});\n\nstaticData.users = users;\nreturn [{ json: { success: true, user: newUser } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst newUser = items[0].json.body;\n\n// MULTI-TENANT LOGIC\n// If registering a PROFESSIONAL -> They BECOME the Client (Tenant)\nif (newUser.role === 'professional') {\n    newUser.clientId = newUser.cedula;\n    newUser.status = 'pending'; // Set status to PENDING for approval\n}\n\n// DUPLICATE CHECK\n// If Professional: Check if cedula exists globally (as they are unique tenants)\n// If Patient: Check if cedula exists WITHIN that clientId\nlet exists;\nif (newUser.role === 'professional') {\n    exists = users.find(u => u.cedula === newUser.cedula); \n} else {\n    exists = users.find(u => u.cedula === newUser.cedula && u.clientId === newUser.clientId);\n}\n\nif (exists) {\n    return [{ json: { success: false, message: 'Usuario/Profesional ya registrado.' } }];\n}\n\n// SAVE USER\nusers.push({\n    ...newUser,\n    id: Date.now()\n});\n\nstaticData.users = users;\nreturn [{ json: { success: true, user: newUser } }];"
       }
     },
     {
@@ -290,7 +290,7 @@
         1500
       ],
       "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst { cedula, clientId } = items[0].json.query || items[0].json.body;\n\n// Buscamos usuario que coincida con cedula\n// Y (sea del mismo cliente O sea un usuario legacy sin cliente)\nconst user = users.find(u => \n    u.cedula === cedula && \n    (u.clientId === clientId || !u.clientId)\n);\n\nif (!user) {\n    return [{ json: { success: false, message: 'Usuario no encontrado en la base de este profesional.' } }];\n}\n\nreturn [{ json: { success: true, user } }];"
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst { cedula, clientId } = items[0].json.query || items[0].json.body;\n\n// FIX LOGIN FOR PROFESSIONALS\nconst user = users.find(u => {\n    // Cedula must match\n    if (u.cedula !== cedula) return false;\n\n    // If user is Professional -> They ARE the tenant\n    // Ignore incoming clientId because login page sends the app's default ID\n    if (u.role === 'professional') return true;\n\n    // If user is Patient -> Must belong to the specific Professional (clientId)\n    // Or be a legacy user with no clientId\n    return u.clientId === clientId || !u.clientId;\n});\n\nif (!user) {\n    return [{ json: { success: false, message: 'Usuario no encontrado en la base de este profesional.' } }];\n}\n\n// CHECK APPROVAL STATUS\nif (user.role === 'professional' && user.status === 'pending') {\n    return [{ json: { success: false, message: 'Tu cuenta está pendiente de aprobación por el administrador.' } }];\n}\n\nreturn [{ json: { success: true, user } }];"
       }
     },
     {
@@ -550,9 +550,71 @@
         2500
       ],
       "id": "respond-available-hours"
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "approve",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "name": "Webhook Approve",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        200,
+        3000
+      ],
+      "webhookId": "approve-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst { cedula } = items[0].json.query;\n\nconst user = users.find(u => u.cedula === cedula);\nif (user) {\n    user.status = 'active';\n    staticData.users = users;\n    return [{ json: { success: true, message: 'Usuario aprobado exitosamente.' } }];\n}\n\nreturn [{ json: { success: false, message: 'Usuario no encontrado.' } }];"
+      },
+      "name": "Approve Logic",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        3000
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond Approve",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        700,
+        3000
+      ]
     }
   ],
   "connections": {
+    "Webhook Approve": {
+      "main": [
+        [
+          {
+            "node": "Approve Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approve Logic": {
+      "main": [
+        [
+          {
+            "node": "Respond Approve",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Webhook Create": {
       "main": [
         [

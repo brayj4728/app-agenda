@@ -482,6 +482,14 @@
                     document.getElementById('viewSuccess').style.display = 'flex';
                     document.getElementById('viewSuccess').style.flexDirection = 'column';
                     document.getElementById('globalBackBtn').style.display = 'none';
+
+                    const successTitle = document.querySelector('#viewSuccess h2');
+                    if (currentView === 'professional') {
+                        successTitle.innerHTML = 'Registro exitoso.<br><br>Su cuenta está en revisión por el administrador. Se le notificará cuando sea aprobada.';
+                    } else {
+                        successTitle.innerHTML = 'Registro con éxito';
+                    }
+
                     currentView = 'success';
                 } else {
                     const errorMsg = data.message || 'Error desconocido';
