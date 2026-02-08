@@ -129,12 +129,32 @@
 
         <div id="status"></div>
 
+        <div
+            style="background:#e3f2fd; padding:20px; border-radius:12px; margin-bottom:30px; border:1px solid #bbdefb;">
+            <h3 style="margin-top:0; color:#1565c0;">🏥 Crear Nuevo Profesional (Multi-Tenant)</h3>
+            <p style="font-size:0.9rem; color:#555; margin-bottom:15px;">Al crear un profesional, se generará
+                automáticamete una base de datos aislada para sus pacientes.</p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px;">
+                <input type="text" id="newProName" placeholder="Nombre del Profesional (ej. Dr. Juan)"
+                    style="padding:12px;">
+                <input type="email" id="newProEmail" placeholder="Correo (ej. juan@medico.com)" style="padding:12px;">
+                <input type="text" id="newProCedula" placeholder="Cédula (Será su ID de Cliente)" style="padding:12px;">
+                <button onclick="createProfessional()"
+                    style="background:#1565c0; color:white; font-weight:bold; padding:12px; border-radius:6px; border:none; cursor:pointer;">
+                    ✨ Crear Profesional
+                </button>
+            </div>
+        </div>
+
         <table>
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Cédula</th>
+                    <th>Email</th>
+                    <th>Cédula (ID)</th>
                     <th>Rol</th>
+                    <th>Client App ID</th>
                     <th>Acción</th>
                 </tr>
             </thead>
@@ -146,44 +166,60 @@
 
     <script src="../config.js"></script>
     <script>
+        // GLOBAL ERROR HANDLER
+        window.onerror = function (msg, url, line) {
+            alert('❌ ERROR JAVASCRIPT DETECTADO:\n' + msg + '\nLínea: ' + line);
+            return false;
+        };
+
+        if (typeof CONFIG === 'undefined') {
+            alert('❌ Error Crítico: No se cargó el archivo config.js.\nVerifique que exista en la carpeta public.');
+            throw new Error('CONFIG not found');
+        }
+
         const USER_API = CONFIG.USERS_URL;
 
+        // LOAD USERS
         async function loadUsers() {
             const status = document.getElementById('status');
             const tbody = document.getElementById('userTableBody');
+
+            if (!status || !tbody) return; // Silent fail if elements missing (unlikely)
+
             status.innerText = 'Cargando usuarios...';
             tbody.innerHTML = '';
 
             try {
-                // We use the agenda-view to get HTML and then parse or just use a dedicated GET /users
-                // Actually, my backend GET /users needs a cedula to find one, but if I send role=admin maybe it returns all?
-                // Checking n8n code... It seems GET /users only finds ONE.
-                // But I can use the HTML view to at least see them.
-                // Let's assume the user wants to see the table.
+                const url = `${USER_API}?cedula=ALL&role=admin&clientId=${CONFIG.CLIENT_ID}`;
+                console.log('Cargando usuarios desde:', url);
 
-                // To be robust, I'll use the agenda-view to get the raw HTML from n8n and display it or parse it.
-                // Better: I'll update the n8n GET /users to return ALL if role=admin is passed.
-
-                const res = await fetch(`${USER_API}?cedula=ALL&role=admin&clientId=${CONFIG.CLIENT_ID}`);
+                const res = await fetch(url);
                 const data = await res.json();
 
                 if (data.success && data.users) {
-                    data.users.forEach(u => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
+                    if (data.users.length === 0) {
+                        status.innerText = 'No hay usuarios registrados.';
+                    } else {
+                        data.users.forEach(u => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
                         <td>${u.name}</td>
+                        <td>${u.email || '-'}</td>
                         <td>${u.cedula}</td>
-                        <td>${u.role}</td>
+                        <td><span style="background:${u.role === 'professional' ? '#e3f2fd' : '#f5f5f5'}; padding:4px 8px; border-radius:4px; font-weight:bold; color:${u.role === 'professional' ? '#1565c0' : '#666'}">${u.role}</span></td>
+                        <td><code>${u.clientId || 'N/A'}</code></td>
                         <td><button class="btn-table-del" onclick="deleteUser('${u.cedula}')">Eliminar</button></td>
                     `;
-                        tbody.appendChild(tr);
-                    });
-                    status.innerText = `Mostrando ${data.users.length} usuarios.`;
+                            tbody.appendChild(tr);
+                        });
+                        status.innerText = `Mostrando ${data.users.length} usuarios.`;
+                    }
                 } else {
-                    status.innerText = 'No se pudieron cargar los usuarios.';
+                    status.innerText = '⚠️ No se pudieron cargar los usuarios. Respuesta: ' + JSON.stringify(data);
                 }
             } catch (e) {
-                status.innerText = 'Error de conexión: ' + e.message;
+                console.error(e);
+                status.innerText = '❌ Error de conexión: ' + e.message;
             }
         }
 
@@ -202,13 +238,84 @@
                 if (data.success) {
                     status.style.color = 'green';
                     status.innerText = '✅ Usuario eliminado correctamente.';
-                    loadUsers();
+                    loadUsers(); // Reload table
                 } else {
                     status.style.color = 'red';
                     status.innerText = '❌ Error: ' + (data.message || 'No se pudo eliminar.');
                 }
             } catch (e) {
                 status.innerText = 'Error: ' + e.message;
+            }
+        }
+
+        // CREATE PROFESSIONAL FUNCTION
+        async function createProfessional() {
+            try {
+                console.log('🚀 Iniciando creación de profesional...');
+
+                const nameEl = document.getElementById('newProName');
+                const emailEl = document.getElementById('newProEmail');
+                const cedulaEl = document.getElementById('newProCedula');
+                const status = document.getElementById('status');
+
+                if (!nameEl || !emailEl || !cedulaEl) {
+                    alert('Error: No encuentro los cuadros de texto en la página.');
+                    return;
+                }
+
+                const name = nameEl.value.trim();
+                const email = emailEl.value.trim();
+                const cedula = cedulaEl.value.trim();
+
+                if (!name || !cedula || !email) {
+                    alert('⚠️ Por favor completa TODOS los campos (Nombre, Correo, Cédula).');
+                    return;
+                }
+
+                status.innerText = '⏳ Conectando con N8N para crear base de datos...';
+                status.style.color = 'blue';
+
+                const payload = {
+                    name, email, cedula,
+                    role: 'professional',
+                    type: 'Profesional',
+                    clientId: cedula, // FORCE ISOLATION
+                    clientName: name
+                };
+
+                console.log('Enviando datos:', payload);
+
+                // API CALL
+                const res = await fetch(CONFIG.REGISTER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('Status HTTP:', res.status);
+                const data = await res.json();
+                console.log('Respuesta JSON:', data);
+
+                if (data.success || data.message === 'Workflow was started') {
+                    status.style.color = 'green';
+                    status.innerText = '✅ ¡ÉXITO! Profesional creado y base de datos aislada lista.';
+                    alert('✅ Profesional Creado Exitosamente.\n\nAhora puedes iniciar sesión con la cédula ' + cedula);
+
+                    // Clear inputs
+                    nameEl.value = '';
+                    emailEl.value = '';
+                    cedulaEl.value = '';
+
+                    loadUsers(); // Refresh table
+                } else {
+                    status.style.color = 'red';
+                    status.innerText = '❌ Error N8N: ' + (data.message || 'Respuesta desconocida');
+                    alert('Error del servidor: ' + (data.message || 'Ver consola para más detalles'));
+                }
+
+            } catch (e) {
+                console.error(e);
+                alert('❌ Error Técnico:\n' + e.message + '\n\nRevisa si el servidor n8n está activo.');
             }
         }
 
@@ -221,7 +328,8 @@
             deleteUser(cedula);
         }
 
-        // Initial load
+        // INIT
+        console.log('Admin Dashboard Loaded');
         loadUsers();
     </script>
 

@@ -62,9 +62,7 @@
       "id": "webhook-get"
     },
     {
-      "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst allAppts = staticData.appointments || [];\nconst query = items[0].json.query;\nconst userCedula = query.cedula;\nconst userRole = query.role;\n\nlet myAppts = [];\n// DATA ISOLATION LOGIC\nif (userRole === 'professional' || userRole === 'admin') {\n    // Admin/Pro see EVERYTHING\n    myAppts = allAppts;\n} else {\n    // Patients see ONLY their own based on CEDULA match\n    // Ensure loose comparison for string/number match\n    if (!userCedula) {\n        myAppts = []; // No cedula? No data.\n    } else {\n        myAppts = allAppts.filter(a => a.patientCedula == userCedula);\n    }\n}\nreturn [{ json: { success: true, appointments: myAppts } }];"
-      },
+      "id": "get-logic",
       "name": "Get Logic (Filtered)",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -72,7 +70,9 @@
         450,
         500
       ],
-      "id": "get-logic"
+      "parameters": {
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst appointments = staticData.appointments || [];\nconst { clientId, role, cedula } = items[0].json.query;\n\nlet filtered;\nif (role === 'admin' || role === 'professional') {\n    // El profesional VE TODAS las citas de SU clientId\n    filtered = appointments.filter(a => a.clientId === clientId);\n} else {\n    // El paciente VE SOLO sus citas agendadas CON ESTE profesional\n    filtered = appointments.filter(a => a.patientCedula === cedula && a.clientId === clientId);\n}\n\nreturn [{ json: { success: true, appointments: filtered } }];"
+      }
     },
     {
       "parameters": {
@@ -191,9 +191,7 @@
       "id": "webhook-register"
     },
     {
-      "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nif (!staticData.users) { staticData.users = []; }\n\nconst body = items[0].json.body;\n\n// CHECK FOR DUPLICATES (Cedula or Email)\nconst existingUser = staticData.users.find(u => \n  String(u.cedula) === String(body.cedula) || \n  u.email === body.email\n);\n\nif (existingUser) {\n  return [{ \n    json: { \n      success: false, \n      message: 'La cédula o el correo electrónico ya se encuentran registrados.' \n    } \n  }];\n}\n\n// Create User Object\nconst newUser = {\n  id: Date.now(),\n  name: body.name,\n  email: body.email,\n  cedula: body.cedula,\n  phone: body.phone || '',\n  role: body.role || 'patient',\n  type: body.type || '',\n  registeredAt: new Date().toISOString()\n};\n\nstaticData.users.push(newUser);\n\nreturn [{ json: { success: true, user: newUser } }];"
-      },
+      "id": "register-logic",
       "name": "Register Logic",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -201,7 +199,9 @@
         450,
         1300
       ],
-      "id": "register-logic"
+      "parameters": {
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst newUser = items[0].json.body;\n\n// MULTI-TENANT LOGIC\n// If registering a PROFESSIONAL -> They BECOME the Client (Tenant)\nif (newUser.role === 'professional') {\n    newUser.clientId = newUser.cedula;\n}\n\n// DUPLICATE CHECK\n// If Professional: Check if cedula exists globally (as they are unique tenants)\n// If Patient: Check if cedula exists WITHIN that clientId\nlet exists;\nif (newUser.role === 'professional') {\n    exists = users.find(u => u.cedula === newUser.cedula); \n} else {\n    exists = users.find(u => u.cedula === newUser.cedula && u.clientId === newUser.clientId);\n}\n\nif (exists) {\n    return [{ json: { success: false, message: 'Usuario/Profesional ya registrado.' } }];\n}\n\n// SAVE USER\nusers.push({\n    ...newUser,\n    id: Date.now()\n});\n\nstaticData.users = users;\nreturn [{ json: { success: true, user: newUser } }];"
+      }
     },
     {
       "parameters": {
@@ -281,9 +281,7 @@
       "id": "webhook-login"
     },
     {
-      "parameters": {
-        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\n\nconst body = items[0].json.body;\nconst name = body.name;\nconst cedula = body.cedula;\nconst role = body.role;\n\n// FIND USER\n// Loose comparison or string normalization\nconst user = users.find(u => \n    (u.cedula == cedula || u.cedula === cedula) && \n    (role ? u.role === role : true)\n);\n\nif (user) {\n    return [{ json: { success: true, user: user } }];\n}\n\nreturn [{ json: { success: false, message: 'Usuario no encontrado' } }];"
-      },
+      "id": "login-logic",
       "name": "Login Logic",
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
@@ -291,7 +289,9 @@
         450,
         1500
       ],
-      "id": "login-logic"
+      "parameters": {
+        "functionCode": "const staticData = getWorkflowStaticData('global');\nconst users = staticData.users || [];\nconst { cedula, clientId } = items[0].json.query || items[0].json.body;\n\n// Buscamos usuario que coincida con cedula\n// Y (sea del mismo cliente O sea un usuario legacy sin cliente)\nconst user = users.find(u => \n    u.cedula === cedula && \n    (u.clientId === clientId || !u.clientId)\n);\n\nif (!user) {\n    return [{ json: { success: false, message: 'Usuario no encontrado en la base de este profesional.' } }];\n}\n\nreturn [{ json: { success: true, user } }];"
+      }
     },
     {
       "parameters": {
