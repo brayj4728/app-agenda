@@ -8,6 +8,10 @@ const CONFIG = {
     // Current n8n instance base URL
     N8N_BASE_URL: 'https://n8n-n8n.xxboi7.easypanel.host/webhook',
 
+    // Multi-tenant Identifiers
+    CLIENT_ID: 'rosette_main',
+    CLIENT_NAME: 'Solar Rosette',
+
     // Country code for WhatsApp (e.g., '57' for Colombia)
     WHATSAPP_COUNTRY_CODE: '57',
 

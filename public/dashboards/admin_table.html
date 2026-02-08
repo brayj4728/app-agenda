@@ -92,7 +92,7 @@
             document.getElementById('loading').style.display = 'block';
             document.getElementById('dbTable').style.display = 'none';
             try {
-                const res = await fetch(`${API}?cedula=${cedula}&role=${role}`);
+                const res = await fetch(`${API}?cedula=${cedula}&role=${role}&clientId=${CONFIG.CLIENT_ID}`);
                 const data = await res.json();
 
                 if (data.success) {

@@ -287,7 +287,7 @@
                     submitBtn.textContent = originalText; submitBtn.disabled = false;
                     return alert('Completa los campos');
                 }
-                payload = { name: n, cedula: c, role: 'patient' };
+                payload = { name: n, cedula: c, role: 'patient', clientId: CONFIG.CLIENT_ID };
             } else {
                 const n = document.getElementById('profName').value;
                 const c = document.getElementById('profCedula').value;
@@ -302,7 +302,7 @@
                     return alert('Acceso denegado: Solo el perfil autorizado (Carmona Cesar) puede ingresar como Profesional.');
                 }
 
-                payload = { name: n, cedula: c, role: 'professional' };
+                payload = { name: n, cedula: c, role: 'professional', clientId: CONFIG.CLIENT_ID };
             }
 
             try {
@@ -328,7 +328,9 @@
                     localStorage.setItem('solarUser', JSON.stringify({
                         name: userToSave.name,
                         cedula: userToSave.cedula,
-                        role: userToSave.role
+                        role: userToSave.role,
+                        clientId: CONFIG.CLIENT_ID,
+                        clientName: CONFIG.CLIENT_NAME
                     }));
 
                     // ROLE BASED REDIRECT

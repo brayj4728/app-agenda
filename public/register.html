@@ -436,7 +436,11 @@
                     submitBtn.textContent = originalText; submitBtn.disabled = false;
                     return alert('Completa todos los campos');
                 }
-                payload = { name, email, cedula, role: 'professional', type };
+                payload = {
+                    name, email, cedula, role: 'professional', type,
+                    clientId: CONFIG.CLIENT_ID,
+                    clientName: CONFIG.CLIENT_NAME
+                };
             } else if (currentView === 'patient') {
                 const name = document.getElementById('patName').value;
                 const email = document.getElementById('patEmail').value;
@@ -454,7 +458,11 @@
                     return alert('El teléfono debe tener 10 dígitos (ejemplo: 3001234567)');
                 }
 
-                payload = { name, email, cedula, phone, role: 'patient' };
+                payload = {
+                    name, email, cedula, phone, role: 'patient',
+                    clientId: CONFIG.CLIENT_ID,
+                    clientName: CONFIG.CLIENT_NAME
+                };
             }
 
             try {

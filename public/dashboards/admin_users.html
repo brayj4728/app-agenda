@@ -164,7 +164,7 @@
                 // To be robust, I'll use the agenda-view to get the raw HTML from n8n and display it or parse it.
                 // Better: I'll update the n8n GET /users to return ALL if role=admin is passed.
 
-                const res = await fetch(`${USER_API}?cedula=ALL&role=admin`);
+                const res = await fetch(`${USER_API}?cedula=ALL&role=admin&clientId=${CONFIG.CLIENT_ID}`);
                 const data = await res.json();
 
                 if (data.success && data.users) {

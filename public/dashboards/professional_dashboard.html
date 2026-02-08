@@ -780,7 +780,7 @@
         // 4. Load Data
         async function loadData() {
             try {
-                const res = await fetch(`${API_URL}?cedula=${user.cedula}&role=professional`);
+                const res = await fetch(`${API_URL}?cedula=${user.cedula}&role=professional&clientId=${CONFIG.CLIENT_ID}`);
                 const data = await res.json();
                 if (data.success && data.appointments) {
                     allAppointments = data.appointments;

@@ -608,7 +608,7 @@
 
         async function loadAppointments() {
             try {
-                const res = await fetch(`${API_URL}?cedula=${currentUser.cedula}&role=${currentUser.role}`);
+                const res = await fetch(`${API_URL}?cedula=${currentUser.cedula}&role=${currentUser.role}&clientId=${CONFIG.CLIENT_ID}`);
                 const data = await res.json();
                 if (data.success && data.appointments) {
                     // STRICT ISOLATION: Client-side filter to prevent any mix-up
@@ -997,7 +997,8 @@
                 dateStr: d,
                 time: t,
                 type: 'Fisioterapia',
-                status: 'PENDIENTE'
+                status: 'PENDIENTE',
+                clientId: CONFIG.CLIENT_ID
             };
 
             const res = await createAppointment(payload);
